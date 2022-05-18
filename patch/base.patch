@@ -1,0 +1,255 @@
+10a11,12
+> #define _POSIX_C_SOURCE 199309L
+> 
+19,22c21,24
+< #include "samples/shared/diag_lib.h"
+< #include "samples/shared/wdc_diag_lib.h"
+< #include "samples/shared/pci_regs.h"
+< #include "jseb2_lib.h"
+---
+> #include "diag_lib.h"
+> #include "wdc_diag_lib.h"
+> #include "pci_regs.h"
+> #include "include/jseb2_lib.h"
+110c112
+< static void MenuReadWriteCfgSpace(WDC_DEVICE_HANDLE hDev);
+---
+> /* static void MenuReadWriteCfgSpace(WDC_DEVICE_HANDLE hDev); */
+202a205
+>     if (hDev1)
+203a207
+>     if (hDev2)
+292c296
+<             MenuReadWriteCfgSpace(*phDev);
+---
+>             /* MenuReadWriteCfgSpace(*phDev); */
+295,298c299,302
+<             if (JSEB2_REGS_NUM)
+<                 MenuReadWriteRegs(*phDev);
+<             else
+<                 printf("Invalid selection\n");
+---
+>             /* if (JSEB2_REGS_NUM) */
+>             /*     MenuReadWriteRegs(*phDev); */
+>             /* else */
+>             /*     printf("Invalid selection\n"); */
+27976,27978c27980,27982
+< static void MenuReadWriteCfgSpace(WDC_DEVICE_HANDLE hDev)
+< {
+<     DWORD option;
+---
+> /* static void MenuReadWriteCfgSpace(WDC_DEVICE_HANDLE hDev) */
+> /* { */
+> /*     DWORD option; */
+27980,28034c27984,28038
+<     do {
+<         /* Display pre-defined registers' information */
+<         if (JSEB2_CFG_REGS_NUM)
+<         {
+<             printf("\n");
+<             printf("Configuration registers:\n");
+<             printf("------------------------\n");
+<             WDC_DIAG_RegsInfoPrint(gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM,
+<                 WDC_DIAG_REG_PRINT_ALL & ~WDC_DIAG_REG_PRINT_ADDR_SPACE);
+<         }
+< 
+<         printf("\n");
+<         printf("Read/write the device's configuration space\n");
+<         printf("--------------------------------------------\n");
+<         printf("%d. Read from an offset\n", MENU_RW_CFG_SPACE_READ_OFFSET);
+<         printf("%d. Write to an offset\n", MENU_RW_CFG_SPACE_WRITE_OFFSET);
+<         if (JSEB2_CFG_REGS_NUM)
+<         {
+<             printf("%d. Read all configuration registers defined for the device (see list above)\n",
+<                 MENU_RW_CFG_SPACE_READ_ALL_REGS);
+<             printf("%d. Read from a named register\n", MENU_RW_CFG_SPACE_READ_REG);
+<             printf("%d. Write to a named register\n", MENU_RW_CFG_SPACE_WRITE_REG);
+<         }
+<         printf("%d. Exit menu\n", MENU_RW_CFG_SPACE_EXIT);
+<         printf("\n");
+< 
+<         if (DIAG_INPUT_FAIL == DIAG_GetMenuOption(&option,
+<             JSEB2_CFG_REGS_NUM ? MENU_RW_CFG_SPACE_WRITE_REG :
+<             MENU_RW_CFG_SPACE_WRITE_OFFSET))
+<         {
+<             continue;
+<         }
+< 
+<         switch (option)
+<         {
+<         case MENU_RW_CFG_SPACE_EXIT: /* Exit menu */
+<             break;
+<         case MENU_RW_CFG_SPACE_READ_OFFSET: /* Read from a configuration space offset */
+<             WDC_DIAG_ReadWriteBlock(hDev, WDC_READ, WDC_AD_CFG_SPACE);
+<             break;
+<         case MENU_RW_CFG_SPACE_WRITE_OFFSET: /* Write to a configuration space offset */
+<             WDC_DIAG_ReadWriteBlock(hDev, WDC_WRITE, WDC_AD_CFG_SPACE);
+<             break;
+<         case MENU_RW_CFG_SPACE_READ_ALL_REGS:
+<             WDC_DIAG_ReadRegsAll(hDev, gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM, TRUE);
+<             break;
+<         case MENU_RW_CFG_SPACE_READ_REG:  /* Read from a configuration register */
+<             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM, WDC_READ, TRUE);
+<             break;
+<         case MENU_RW_CFG_SPACE_WRITE_REG: /* Write to a configuration register */
+<             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM, WDC_WRITE, TRUE);
+<             break;
+<         }
+<     } while (MENU_RW_CFG_SPACE_EXIT != option);
+< }
+---
+> /*     do { */
+> /*         /1* Display pre-defined registers' information *1/ */
+> /*         if (JSEB2_CFG_REGS_NUM) */
+> /*         { */
+> /*             printf("\n"); */
+> /*             printf("Configuration registers:\n"); */
+> /*             printf("------------------------\n"); */
+> /*             WDC_DIAG_RegsInfoPrint(gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM, */
+> /*                 WDC_DIAG_REG_PRINT_ALL & ~WDC_DIAG_REG_PRINT_ADDR_SPACE); */
+> /*         } */
+> 
+> /*         printf("\n"); */
+> /*         printf("Read/write the device's configuration space\n"); */
+> /*         printf("--------------------------------------------\n"); */
+> /*         printf("%d. Read from an offset\n", MENU_RW_CFG_SPACE_READ_OFFSET); */
+> /*         printf("%d. Write to an offset\n", MENU_RW_CFG_SPACE_WRITE_OFFSET); */
+> /*         if (JSEB2_CFG_REGS_NUM) */
+> /*         { */
+> /*             printf("%d. Read all configuration registers defined for the device (see list above)\n", */
+> /*                 MENU_RW_CFG_SPACE_READ_ALL_REGS); */
+> /*             printf("%d. Read from a named register\n", MENU_RW_CFG_SPACE_READ_REG); */
+> /*             printf("%d. Write to a named register\n", MENU_RW_CFG_SPACE_WRITE_REG); */
+> /*         } */
+> /*         printf("%d. Exit menu\n", MENU_RW_CFG_SPACE_EXIT); */
+> /*         printf("\n"); */
+> 
+> /*         if (DIAG_INPUT_FAIL == DIAG_GetMenuOption(&option, */
+> /*             JSEB2_CFG_REGS_NUM ? MENU_RW_CFG_SPACE_WRITE_REG : */
+> /*             MENU_RW_CFG_SPACE_WRITE_OFFSET)) */
+> /*         { */
+> /*             continue; */
+> /*         } */
+> 
+> /*         switch (option) */
+> /*         { */
+> /*         case MENU_RW_CFG_SPACE_EXIT: /1* Exit menu *1/ */
+> /*             break; */
+> /*         case MENU_RW_CFG_SPACE_READ_OFFSET: /1* Read from a configuration space offset *1/ */
+> /*             WDC_DIAG_ReadWriteBlock(hDev, WDC_READ, WDC_AD_CFG_SPACE); */
+> /*             break; */
+> /*         case MENU_RW_CFG_SPACE_WRITE_OFFSET: /1* Write to a configuration space offset *1/ */
+> /*             WDC_DIAG_ReadWriteBlock(hDev, WDC_WRITE, WDC_AD_CFG_SPACE); */
+> /*             break; */
+> /*         case MENU_RW_CFG_SPACE_READ_ALL_REGS: */
+> /*             WDC_DIAG_ReadRegsAll(hDev, gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM, TRUE); */
+> /*             break; */
+> /*         case MENU_RW_CFG_SPACE_READ_REG:  /1* Read from a configuration register *1/ */
+> /*             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM, WDC_READ, TRUE); */
+> /*             break; */
+> /*         case MENU_RW_CFG_SPACE_WRITE_REG: /1* Write to a configuration register *1/ */
+> /*             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_CfgRegs, JSEB2_CFG_REGS_NUM, WDC_WRITE, TRUE); */
+> /*             break; */
+> /*         } */
+> /*     } while (MENU_RW_CFG_SPACE_EXIT != option); */
+> /* } */
+28048,28050c28052,28054
+< static void MenuReadWriteRegs(WDC_DEVICE_HANDLE hDev)
+< {
+<     DWORD option;
+---
+> /* static void MenuReadWriteRegs(WDC_DEVICE_HANDLE hDev) */
+> /* { */
+> /*     DWORD option; */
+28052,28056c28056,28060
+<     if (!JSEB2_REGS_NUM)
+<     {
+<         printf("There are currently no pre-defined run-time registers\n");
+<         return;
+<     }
+---
+> /*     if (!JSEB2_REGS_NUM) */
+> /*     { */
+> /*         printf("There are currently no pre-defined run-time registers\n"); */
+> /*         return; */
+> /*     } */
+28058,28096c28062,28100
+<     do {
+<         /* Display pre-defined registers' information */
+<         printf("\n");
+<         printf("JSEB2 run-time registers:\n");
+<         printf("--------------------------\n");   
+<         WDC_DIAG_RegsInfoPrint(gpJSEB2_Regs, JSEB2_REGS_NUM, WDC_DIAG_REG_PRINT_ALL);
+< 
+<         printf("\n");
+<         printf("Read/write the JSEB2 run-time registers\n");
+<         printf("-----------------------------------------\n");
+<         printf("%d. Read all run-time registers defined for the device (see list above)\n",
+<             MENU_RW_REGS_READ_ALL);
+<         printf("%d. Read from a specific register\n", MENU_RW_REGS_READ_REG);
+<         printf("%d. Write to a specific register\n", MENU_RW_REGS_WRITE_REG);
+<         printf("%d. Exit menu\n", MENU_RW_REGS_EXIT);
+<         printf("\n");
+< 
+<         if (DIAG_INPUT_FAIL == DIAG_GetMenuOption(&option,
+<             MENU_RW_REGS_WRITE_REG))
+<         {
+<             continue;
+<         }
+< 
+<         switch (option)
+<         {
+<         case MENU_RW_REGS_EXIT: /* Exit menu */
+<             break;
+<         case MENU_RW_REGS_READ_ALL:
+<             WDC_DIAG_ReadRegsAll(hDev, gpJSEB2_Regs, JSEB2_REGS_NUM, FALSE);
+<             break;
+<         case MENU_RW_REGS_READ_REG:  /* Read from a register */
+<             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_Regs, JSEB2_REGS_NUM, WDC_READ, FALSE);
+<             break;
+<         case MENU_RW_REGS_WRITE_REG: /* Write to a register */
+<             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_Regs, JSEB2_REGS_NUM, WDC_WRITE, FALSE);
+<             break;
+<         }
+<     } while (MENU_RW_REGS_EXIT != option);
+< }
+---
+> /*     do { */
+> /*         /1* Display pre-defined registers' information *1/ */
+> /*         printf("\n"); */
+> /*         printf("JSEB2 run-time registers:\n"); */
+> /*         printf("--------------------------\n"); */   
+> /*         WDC_DIAG_RegsInfoPrint(gpJSEB2_Regs, JSEB2_REGS_NUM, WDC_DIAG_REG_PRINT_ALL); */
+> 
+> /*         printf("\n"); */
+> /*         printf("Read/write the JSEB2 run-time registers\n"); */
+> /*         printf("-----------------------------------------\n"); */
+> /*         printf("%d. Read all run-time registers defined for the device (see list above)\n", */
+> /*             MENU_RW_REGS_READ_ALL); */
+> /*         printf("%d. Read from a specific register\n", MENU_RW_REGS_READ_REG); */
+> /*         printf("%d. Write to a specific register\n", MENU_RW_REGS_WRITE_REG); */
+> /*         printf("%d. Exit menu\n", MENU_RW_REGS_EXIT); */
+> /*         printf("\n"); */
+> 
+> /*         if (DIAG_INPUT_FAIL == DIAG_GetMenuOption(&option, */
+> /*             MENU_RW_REGS_WRITE_REG)) */
+> /*         { */
+> /*             continue; */
+> /*         } */
+> 
+> /*         switch (option) */
+> /*         { */
+> /*         case MENU_RW_REGS_EXIT: /1* Exit menu *1/ */
+> /*             break; */
+> /*         case MENU_RW_REGS_READ_ALL: */
+> /*             WDC_DIAG_ReadRegsAll(hDev, gpJSEB2_Regs, JSEB2_REGS_NUM, FALSE); */
+> /*             break; */
+> /*         case MENU_RW_REGS_READ_REG:  /1* Read from a register *1/ */
+> /*             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_Regs, JSEB2_REGS_NUM, WDC_READ, FALSE); */
+> /*             break; */
+> /*         case MENU_RW_REGS_WRITE_REG: /1* Write to a register *1/ */
+> /*             WDC_DIAG_ReadWriteReg(hDev, gpJSEB2_Regs, JSEB2_REGS_NUM, WDC_WRITE, FALSE); */
+> /*             break; */
+> /*         } */
+> /*     } while (MENU_RW_REGS_EXIT != option); */
+> /* } */
