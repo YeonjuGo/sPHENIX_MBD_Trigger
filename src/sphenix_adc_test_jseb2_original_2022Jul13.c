@@ -37,11 +37,7 @@ static WDC_DEVICE_HANDLE DeviceOpen(const WD_PCI_SLOT *pSlot);
 static void DeviceClose(WDC_DEVICE_HANDLE hDev);
 
 /* main function */
-static void ll1_trigger_test(WDC_DEVICE_HANDLE hDev, int interactive);
-
-/* enumeration for test mode */
-#define _T_LL1  0
-#define _T_CONT  1
+static void ll1_trigger_test(WDC_DEVICE_HANDLE hDev);
 
 #define _DMA_SEND 0
 #define _DMA_REC  1
@@ -138,7 +134,7 @@ static void unpack_array(UINT32* buffer, UINT32* data, int size, int shift) {
 
 static void _sp_adc_cmd_int16(struct pcie_interface_t* pcie, int mod, int chip, int cmd, UINT32 data) {
     pack_int16(pcie->send.buffer, _SP_ADC_CMD(mod, chip, cmd), data);
-    pcie_send(pcie, _M_DMA, 1);/* the third argument is nword */
+    pcie_send(pcie, _M_DMA, 1);
     /* usleep(10); */
     usleep(1);
 }
@@ -187,18 +183,18 @@ static void calculate_mbd_adc_output(struct sp_adc_mbd_t* output, UINT64 cmask, 
     for (i=0; i<32; ++i) {
         tmp = l1_adc_table[input[i + 32] >> 4];
 
-        qadd[i] = (tmp & 0x0380) >> 7; /* 0x0380 is 1110000000 in binary */
+        qadd[i] = (tmp & 0x0380) >> 7;
 
-        output->charge[i/4] += tmp & 0x7f; /* 0x7f is 01111111 in binary */ 
+        output->charge[i/4] += tmp & 0x7f;
     }
 
     /* time channels */
     for (i=0; i<32; ++i) {
         tmp = l1_adc_table[input[i] >> 4];
 
-        output->nhit += (tmp & 0x0200) >> 9; /* 0x0200 is 001000000000 */
+        output->nhit += (tmp & 0x0200) >> 9;
 
-        tmp = l1_slewing_table[(qadd[i] << 9) + (tmp & 0x01ff)]; /* 0x01ff is 0000000111111111 */
+        tmp = l1_slewing_table[(qadd[i] << 9) + (tmp & 0x01ff)];
 
         output->time[i/8] += tmp;
     }
@@ -292,14 +288,13 @@ int main(int argc, char* argv[])
         printf("usage: %s\n", argv[0]);
         return 1;
     }
+    printf("test");
 
     WDC_DEVICE_HANDLE hDev;
 
     DWORD dwStatus;
 
     hDev = NULL;
-
-    int newcmd, interactive;
 
     printf("\n");
     printf("JSEB2 diagnostic utility.\n");
@@ -318,23 +313,7 @@ int main(int argc, char* argv[])
     if (JSEB2_DEFAULT_VENDOR_ID)
         hDev = DeviceFindAndOpen(JSEB2_DEFAULT_VENDOR_ID, JSEB2_DEFAULT_DEVICE_ID);
 
-
-    printf(" [input] type the command code for test\n");
-    printf("  (%d) LL1 trigger test\n", _T_LL1); 
-    printf("  (%d) Controller loopback test\n", _T_CONT); 
-    scanf("%d", &newcmd);
-
-    switch (newcmd) {
-      case _T_LL1:
-        printf(" LL1 trigger test has started\n");
-        printf(" This test corresponds to the (26) multiple ADC module test in Chi's original code\n");
-        printf(" [input] type 1 for interactive mode (0 for preset mode)\n");
-        scanf("%d", &interactive);
-        ll1_trigger_test(hDev, interactive);
-      case _T_CONT:
-        printf(" Controlloer loopback test has started\n");
-        printf(" This test corresponds to the (10) controller loopback test in Chi's original code\n");
-    }
+    ll1_trigger_test(hDev);
 
     /* Perform necessary cleanup before exiting the program */
     if (hDev)
@@ -481,7 +460,7 @@ static void DeviceClose(WDC_DEVICE_HANDLE hDev)
     }
 }
 
-static void ll1_trigger_test(WDC_DEVICE_HANDLE hDev, int interactive)
+static void ll1_trigger_test(WDC_DEVICE_HANDLE hDev)
 {
     int addr_mod, chip;
 
@@ -489,7 +468,7 @@ static void ll1_trigger_test(WDC_DEVICE_HANDLE hDev, int interactive)
 
     int i,k,ic,ie,im,is,iw;
 
-    int log, silent, debug;
+    int log, interactive, silent, debug;
     FILE *outf;
 
     int nevent, nsample, nword;
@@ -521,7 +500,7 @@ static void ll1_trigger_test(WDC_DEVICE_HANDLE hDev, int interactive)
     srand(time(NULL));
 
     log = 0;
-    /* interactive = 0; */
+    interactive = 0;
     silent = 0;
     debug = 0;
 
@@ -1204,7 +1183,6 @@ static void ll1_setup(struct pcie_interface_t* pcie, int addr_mod, int fifo_dela
     usleep(400000);
 
     _sp_ll1_cmd_int16(pcie, addr_mod, 0, sp_L1_s10_slow_rstblk, 0x0);
-    /* if JSEB2 readout instead of crate controller readout, you don't need this line */
     _sp_ll1_cmd_int16(pcie, addr_mod, 0, sp_L1_s10_slow_dat2rbdk, 0x1);
     _sp_ll1_cmd_int16(pcie, addr_mod, 0, sp_L1_s10_slow_dat2link, 0x0);
     /* end crate controller readout */

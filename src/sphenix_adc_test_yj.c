@@ -3189,7 +3189,7 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      }
      break;
 
-    case 4:
+      case 4:
      printf(" number of loop \n");
      scanf("%d",&nloop);
      printf(" number per event \n");
@@ -3203,8 +3203,8 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      printf(" type 1 to use xmit module \n");
      scanf("%d", &isel_xmit);
      if(isel_xmit == 1) {
-      printf(" type 1 to use dcm module \n");
-      scanf("%d", &isel_dcm);
+       printf(" type 1 to use dcm module \n");
+       scanf("%d", &isel_dcm);
      }
      printf(" type 1 to write data to file \n");
      scanf("%d",&iwrite);
@@ -3212,94 +3212,86 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
        printf(" type 0 to /dev/null \n");
        scanf("%d", &i);
        if(i== 0) outf = fopen("/dev/null","w");
-       else outf = fopen("/home/chi/test.dat","w");
+       else outf = fopen("./test.dat","w");
      }
-//
-//
-//
+
      printf(" enter 1 to use pulse \n");
      scanf("%d",&ipulse);
      printf(" enter 1 to use external trigger \n");
      scanf("%d",&iext_trig);
      printf(" enter 1 to use pulse generator module \n");
      scanf("%d", &igen);
-     if(igen == 1) {
-      printf(" enter number of steps \n");
-      scanf("%d", &nstep);
-      printf(" event per step \n");
-      scanf("%d", &nstep_event);
-      printf(" dac value per step \n");
-      scanf("%d", &nstep_dac);
-      printf(" enter test pattern %x \n");
-      scanf("%x", &ipattern);
-      printf(" type 1 for fix dac\n");
-      scanf("%d", &ifix_dac);
-     }
-     if(igen == 1 & iwrite == 1) {
-      fprintf(outf," %d\n", nstep);
-      fprintf(outf," %d\n", nstep_event);
-      fprintf(outf," %d\n", nstep_dac);
+     if(igen == 1){
+       printf(" enter number of steps \n");
+       scanf("%d", &nstep);
+       printf(" event per step \n");
+       scanf("%d", &nstep_event);
+       printf(" dac value per step \n");
+       scanf("%d", &nstep_dac);
+       printf(" enter test pattern %x \n");
+       scanf("%x", &ipattern);
+       printf(" type 1 for fix dac\n");
+       scanf("%d", &ifix_dac);
      }
 
-     if(igen == 1) nevent = nstep * nstep_event;
-     if(igen == 1) printf(" event is going to be %d\n", nevent); 
-
+     if(igen == 1){
+       if(iwrite == 1){
+         fprintf(outf," %d\n", nstep);
+         fprintf(outf," %d\n", nstep_event);
+         fprintf(outf," %d\n", nstep_dac);
+       }
+       nevent = nstep * nstep_event;
+       printf(" event is going to be %d\n", nevent); 
+     }
 
      if((ipulse !=0) | (igen != 0)) {
-      printf(" enter L1 delay number \n");
-      scanf("%d", &l1_delay);
+       printf(" enter L1 delay number \n");
+       scanf("%d", &l1_delay);
      }
-     
+
      printf(" enter 1 to load ADC test data memory\n");
      scanf("%d", &itest_ram);
 
      px = &buf_send;
      py = &read_array;
-//     imod =6;
      imod_xmit = imod_start+nmod;
      ichip=6;
-//     nsample = 12;
-     if(isel_dcm ==1) {
-      imod_dcm=11;
-      printf(" boot 5th FPGA \n");
-      i=dcm2_fpga_boot(hDev2,imod_dcm,1);
-      printf(" type 1 to continue \n");
-      scanf("%d", &i);
-      printf(" boot FPGA 1-4 \n");
-      i=dcm2_fpga_boot(hDev2,imod_dcm,2);
-      printf(" type 1 to continue \n");
-      scanf("%d",&i);
 
-      ioffset=4;
-      ichip =5;
-      iadd=(imod_dcm<<11)+(ichip<<8);  /* don't care about chip number **/
-/* set run =0 -- clear everything */
-      buf_send[0]=iadd+dcm2_run_off;
-      ik=pcie_send(hDev2,1,1,px);
+
+     /* when using DCM */
+     if(isel_dcm ==1){
+       imod_dcm=11;
+       printf(" boot 5th FPGA \n");
+       i=dcm2_fpga_boot(hDev2,imod_dcm,1);
+       printf(" type 1 to continue \n");
+       scanf("%d", &i);
+       printf(" boot FPGA 1-4 \n");
+       i=dcm2_fpga_boot(hDev2,imod_dcm,2);
+       printf(" type 1 to continue \n");
+       scanf("%d",&i);
+
+       ioffset=4;
+       ichip =5;
+       iadd=(imod_dcm<<11)+(ichip<<8);  /* don't care about chip number **/
+       /* set run =0 -- clear everything */
+       buf_send[0]=iadd+dcm2_run_off;
+       ik=pcie_send(hDev2,1,1,px);
      }
+     /* DONE when using DCM */
 
-//    for (j=0; j<nloop; j++) {
-//       if(inew == 1) {
      dwAddrSpace =2;
      u32Data = 0xf0000008;
      dwOffset = 0x28;
      WDC_WriteAddr32(hDev, dwAddrSpace, dwOffset, u32Data);
-//       }
      ifr=0;
 
-/** initialize **/
-/*      if(j ==0) { */
      buf_send[0]=0x0;
      buf_send[1]=0x0;
      i=1;
      k=1;
      i = pcie_send_1(hDev, i, k, px);
-//
-//
-//
 
-       printf(" set the controller to offline state before reset can be applied \n");
-//
+     printf(" set the controller to offline state before reset can be applied \n");
      imod=0;
      ichip=0;
      buf_send[0]=(imod<<11)+(ichip<<8)+(sp_cntrl_offline)+(0x1<<16); //enable offline run on
@@ -3307,24 +3299,22 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      k=1;
      i = pcie_send_1(hDev, i, k, px);
 
-//
-//
-//
+
+     /* when using XMIT */
      if(isel_xmit == 1) {
-      ichip = sp_xmit_sub;
+       ichip = sp_xmit_sub;
 
-      buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxanalogreset + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-      buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxdigitalreset + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxanalogreset + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+       buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxdigitalreset + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-//      for (ia=0; ia< 1000000; ia++) {
        printf(" type 1 to do the byte ordering \n");
        scanf("%d",&is);
        buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxbytord + (0<<16) ;
@@ -3332,23 +3322,19 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
        k= 1;
        i = pcie_send_1(hDev, i, k, px);
        usleep(10);
-//      }
 
-      buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_init + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_init + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-      printf(" xmit reset complete type 1 to continue \n");
-      scanf("%d",&is);
-
-
-
+       printf(" xmit reset complete type 1 to continue \n");
+       scanf("%d",&is);
      }
-//
-//   send init to the controller
-//
+     /* DONE when using XMIT */
+
+     //   send init to the controller
      buf_send[0]= (0x2<<8)+sp_cntrl_timing+ (sp_cntrl_init<<16);
      i= 1;
      k= 1;
@@ -3358,752 +3344,655 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      i= 1;
      k= 1;
      i = pcie_send_1(hDev, i, k, px);
-//
-//   send reset to the controller
-//
-//     printf(" type 1 to send reset \n");
-//     scanf("%d",&is);
 
-//     for (is =0; is<1000000000; is++) {
-      buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ (sp_cntrl_reset<<16);
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(1000);
-//     }
+     //   send reset to the controller
+     buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ (sp_cntrl_reset<<16);
+     i= 1;
+     k= 1;
+     i = pcie_send_1(hDev, i, k, px);
+     usleep(1000);
 
-//
-//   after initial the xmit and controller -- initialize the DCM II
-//
+      
+     /* when using DCM */
+
+     //   after initial the xmit and controller -- initialize the DCM II
      if(isel_dcm == 1) {
-
-      nmask = 0x1; /*turn non all channel */
-      for (i=1; i<5; i++) {
-        ichip=i;
-        iadd=(imod_dcm<<11)+(ichip<<8);
-/* set module to online mode */
-        buf_send[0]=iadd+dcm2_online+(0x1<<16);
-        ik=pcie_send(hDev2,1,1,px);
-/* set mask on for all channel*/
-        buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
-        ik=pcie_send(hDev2,1,1,px);
-      }
-/** work on 5th FPGA **/
-      ichip=5;
-      iadd=(imod_dcm<<11)+(ichip<<8);
-/* set module to offline mode */
-      buf_send[0]=iadd+dcm2_online+(0x0<<16);
-      ik=pcie_send(hDev2,1,1,px);
-/* set mask on for all channel*/
-      buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
-      ik=pcie_send(hDev2,1,1,px);
-
-/* set dcm first module */
-      buf_send[0]=iadd+dcm2_5_firstdcm+(0x1<<16);   // bit 0 =1 on
-      ik=pcie_send(hDev2,1,1,px);
-/* set last module*/
-      buf_send[0]=iadd+dcm2_5_lastdcm+(0x1<<16);    // bit 0 =1 on
-      ik=pcie_send(hDev2,1,1,px);
-//
-//
-      ichip =5;
-      iadd=(imod_dcm<<11)+(ichip<<8);
-/* set run =1 */
-      buf_send[0]=iadd+dcm2_run_on;
-      ik=pcie_send(hDev2,1,1,px);
-     }
-
-//
-//   set sample size  -- to 10
-//
-//     printf(" type 1 to send sample size");
-//     scanf("%d",&is)
-     for (ik =0; ik<nmod; ik++) {
-
-//#define  sp_adc_calib_dac         100
-//#define  sp_adc_calib_ch          101
-//#define  sp_adc_calib_write       102
-//#define  sp_adc_calib_send        103
-//#define  sp_adc_trg_tx_dreset      22
-//#define  sp_adc_trg_tx_areset      23
-      if(igen ==1) {
-//
-// remove analog reset
-//
-        imod = ik+imod_start;
-        ichip = sp_adc_slowcntl_sub;
-        buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trg_tx_areset + (0<<16) ;
-        i= 1;
-        k= 1;
-        i = pcie_send_1(hDev, i, k, px);
-        usleep(10);
-//
-// remove digital reset
-//
-        imod = ik+imod_start;
-        ichip = sp_adc_slowcntl_sub;
-        buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trg_tx_dreset + (0<<16) ;
-        i= 1;
-        k= 1;
-        i = pcie_send_1(hDev, i, k, px);
-        usleep(10);
-
-        printf(" trigger transmitter resets removed \n");
-        scanf("%d",&i);
-
-
-        for (is=0; is< 16; is++) {
-         imod = ik+imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_ch + (is<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-
-         imod = ik+imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_dac + ((0xe00)<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-
-         imod = ik+imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_send + (is<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-
-/*
-         imod = ik+imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x1<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(1);
-
-         imod = ik+imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x0<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-*/
-         printf(" loading channel %d, dac value \n", is);
-//         scanf("%d",&i);
-
-        }
-//
-//
-//
-
-
-
-/*        imod = ik+imod_start;
-        ichip = sp_adc_slowcntl_sub;
-        buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_send + (is<<16) ;
-        i= 1;
-        k= 1;
-        i = pcie_send_1(hDev, i, k, px);
-        usleep(10);
-
-        printf(" loading channel %d, dac value \n", is);
-        scanf("%d",&i);
-*/
-      }
-
-
-
-      imod = ik+imod_start;
-      ichip = sp_adc_slowcntl_sub;
-      buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_evt_sample + ((nsample-1)<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set L1 delay  -- to 100
-//
-      printf(" set L1 delay module %d\n", imod);
-//      printf(" type 1 to set L1 delay \n");
-//      scanf("%d",&is);
-      if((ipulse != 0) | (igen !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (l1_delay<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (0x10<<16) ;
-      printf(" buf_send = %x\n", buf_send[0]);
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set dat2link off
-//
-//     printf(" type 1 to send sample size");
-//    scanf("%d",&is);
-      if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (1<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set dat2control  on
-//
-//     printf(" type 1 to send sample size");
-//     scanf("%d",&is);
-      if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (0<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (1<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set pulse trigger off
-//
-//     printf(" type 1 to send sample size");
-//     scanf("%d",&is);
-      if(ipulse != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x1<<16) ;
-      else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set calibarion trigger on/off
-//
-//     printf(" type 1 to send sample size");
-//     scanf("%d",&is);
-      if(igen != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x1<<16) ;
-      else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set test trigger off
-//
-      printf(" type 1 to set test ram state  \n");
-      scanf("%d",&is);
-//
-//   verilog code issue I don't understand so I flip the test pulse bit
-//
-
-//      if(itest_ram == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_test_trig + (0x1<<16) ;
-//      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_test_trig + (0x0<<16) ;
-      if(itest_ram == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x1<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set select L1 trigger on
-//
-      printf(" type 1 to select L1 trigger \n");
-      scanf("%d",&is);
-//      if((ipulse != 0) | (igen  !=0) | (itest_ram != 0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x0<<16) ;
-      if((ipulse != 0) | (igen  !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x0<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x1<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//      printf(" set up complete type 1 to continue \n");
-//      scanf("%d",&is);
-//
-//    if select xmit module and not last module tunr off link_rxoff
-//
-      if(isel_xmit == 1) {
-       if(imod != imod_start) {
-        ichip = sp_adc_slowcntl_sub;
-        buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_link_rxoff + (0<<16) ;
-        i= 1;
-        k= 1;
-        i = pcie_send_1(hDev, i, k, px);
-        usleep(10);
-        printf(" rx_off called , module %d\n", imod);
+       nmask = 0x1; /*turn non all channel */
+       for (i=1; i<5; i++) {
+         ichip=i;
+         iadd=(imod_dcm<<11)+(ichip<<8);
+         /* set module to online mode */
+         buf_send[0]=iadd+dcm2_online+(0x1<<16);
+         ik=pcie_send(hDev2,1,1,px);
+         /* set mask on for all channel*/
+         buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
+         ik=pcie_send(hDev2,1,1,px);
        }
-      }
-      printf(" call adc setup  module %d\n", imod);
-      i = adc_setup(hDev,imod, 1);
-      scanf("%d",&is);
-      if(itest_ram == 1) {
-       printf(" call adc setup  module %d\n", imod);
-       scanf("%d",&is);
-       i = adc_testram_load(hDev,imod, 400);
-      }
-//sp_adc_sel_link_rxoff
+       /** work on 5th FPGA **/
+       ichip=5;
+       iadd=(imod_dcm<<11)+(ichip<<8);
+       /* set module to offline mode */
+       buf_send[0]=iadd+dcm2_online+(0x0<<16);
+       ik=pcie_send(hDev2,1,1,px);
+       /* set mask on for all channel*/
+       buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
+       ik=pcie_send(hDev2,1,1,px);
 
-
-
-     }
-//
-
-//
-//sp_xmit_lastmod
-     if(isel_xmit == 1) {
-      imod = imod_xmit;
-      ichip = sp_xmit_sub;
-      buf_send[0]=(imod <<11)+ (ichip << 8) + sp_xmit_lastmod + (imod_start<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-      printf(" set last module %d\n", imod_start);
-     }
-
-
-
-
-     for (j=0; j<nloop; j++) {
-//
-//
-//   send L1 trigger to the controller
-//
-     for (ia=0; ia<nevent; ia++) {
-      if(iwrite != 1) {
-       printf(" type 1 to send L1 trigger \n");
-       scanf("%d",&is);
-      }
-
-     for (ik =0; ik<nmod; ik++) {
-       imod = ik+imod_start;
-       nword =3;
-       py = &read_array;
-//
-//     command no-op to enable module output enable
-// otherwise the LVDS input at controller will be floating high
-//
-       ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
-       buf_send[0]=(imod<<11)+(ichip<<8)+(8) + (0x0<<16);  // read out status
-       i=1;
-       k=1;
-       i = pcie_send_1(hDev, i, k, px);
-//
-       i = pcie_rec_2(hDev,0,1,nword,iprint,py);       // init receiver
-       ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
-       buf_send[0]=(imod<<11)+(ichip<<8)+(sp_adc_readback_status) + (0x0<<16);  // read out status
-       i=1;
-       k=1;
-       i = pcie_send_1(hDev, i, k, px);
-       usleep(10);
-       py = &read_array;
-       i = pcie_rec_2(hDev,0,2,nword,iprint,py);     // read out 2 32 bits words
-       if(iwrite != 1) {
-        printf("module %d receive data word = %x, %x, %x\n", imod, read_array[0], read_array[1], read_array[2]);
-        printf (" header word = %x \n" ,((read_array[0] & 0xffff) >> 8));
-        printf (" module address = %d \n" ,(read_array[0] & 0x1f));
-        printf (" upper adc rx pll locked %d\n", ((read_array[0] >>31) & 0x1));
-        printf (" upper adc rx dpa locked %d\n", ((read_array[0] >>30) & 0x1));
-        printf (" upper adc rx aligment %d\n", ((read_array[0] >>29) & 0x1));
-        printf (" upper adc rx data valid %d\n", ((read_array[0] >>28) & 0x1));
-        printf (" lower adc rx pll locked %d\n", ((read_array[0] >>27) & 0x1));
-        printf (" lower adc rx dpa locked %d\n", ((read_array[0] >>26) & 0x1));
-        printf (" lower adc rx aligment %d\n", ((read_array[0] >>25) & 0x1));
-        printf (" lower adc rx data valid %d\n", ((read_array[0] >>24) & 0x1));
-        printf (" link pll locked %d\n", ((read_array[0] >>23) & 0x1));
-        printf (" clock pll locked %d\n", ((read_array[0] >>22) & 0x1));
-        printf (" trigger bufer empty %d\n", ((read_array[0] >>21) & 0x1));
-        printf (" firmware version %d\n", ((read_array[2]>>8) & 0xff));
-        printf (" firmware sub version %d\n", ((read_array[2]) & 0xff));
-        printf (" firmware version header %x\n", ((read_array[2])>>16));
-       }
-      }
-
-
-
-//      for (ijk=0; ijk<1000000000; ijk++) {
-      if(ipulse != 0) buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ ((sp_cntrl_pulse)<<16);
-      else if (igen != 0) {
-         idac_shaper = (ia/nstep_event);
-         if(ifix_dac != 1) idac_shaper = idac_shaper *nstep_dac;    //set up the dac value
-         else idac_shaper = 4000;
-
-         imod = imod_start;
-         for (is=0; is< 16; is++) {
-         ic= ipattern>> is;
-         if((ic & 0x1) != 1) idac_shaper_load =0;
-         else idac_shaper_load = idac_shaper;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_ch + (is<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-
-         imod = imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_dac + ((idac_shaper_load)<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-
-         imod = imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_send + (is<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-
-/*
-         imod = ik+imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x1<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(1);
-
-         imod = ik+imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x0<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-*/
-         printf(" loading channel %d, dac value %d , ia= %d, ic= %d \n", is, idac_shaper_load, ia,ic );
-//         scanf("%d",&i);
-
-        }
-
-         imod = imod_start;
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x1<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(1);
-
-         ichip = sp_adc_slowcntl_sub;
-         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x0<<16) ;
-         i= 1;
-         k= 1;
-         i = pcie_send_1(hDev, i, k, px);
-         usleep(10);
-      }
-//      else if (itest_ram == 1) {
-//       printf(" send test pulse trigger \n");
-//       scanf("%d", &i);
-//       ichip = sp_adc_slowcntl_sub;
-//       buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x0<<16) ;
-//      }
-//      else if ((iext_trig != 1) & (igen != 1) & (itest_ram != 1) )buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ ((sp_cntrl_l1)<<16);
-      else if ((iext_trig != 1) & (igen != 1) )buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ ((sp_cntrl_l1)<<16);
-      i= 1;
-      k= 1;
-      if((iext_trig != 1) & (igen != 1)) i = pcie_send_1(hDev, i, k, px);
-      usleep(100);
-//      }
-      if(iwrite != 1) {
-       if(iext_trig != 1) {
-        printf(" trigger send \n");
-        scanf("%d",&is);
-       }
-      }
-
-      if(iext_trig == 1) {
-       ik =0;
-       while (ik != 1) {
-        imod = imod_start;
-        nword =1;
-        py = &read_array;
-//
-//     command no-op to enable module output enable
-// otherwise the LVDS input at controller will be floating high
-//
-        ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
-        buf_send[0]=(imod<<11)+(ichip<<8)+(8) + (0x0<<16);  // read out status
-        i=1;
-        k=1;
-        i = pcie_send_1(hDev, i, k, px);
-//
-        i = pcie_rec_2(hDev,0,1,nword,iprint,py);       // init receiver
-        ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
-        buf_send[0]=(imod<<11)+(ichip<<8)+(sp_adc_readback_status) + (0x0<<16);  // read out status
-        i=1;
-        k=1;
-        i = pcie_send_1(hDev, i, k, px);
-        usleep(10);
-        py = &read_array;
-        i = pcie_rec_2(hDev,0,2,nword,iprint,py);     // read out 2 32 bits words
-        if (((read_array[0] >>21) & 0x1) == 0) {
-         printf(" trigger received \n");
-         ik=1;
-        }
-       }
-      }
-
-
-//
-//
-//
-      if(isel_dcm == 1) {
-       nread = 3;
-       i = pcie_rec(hDev2,0,1,nread,iprint,py);     // read out 2 32 bits words
+       /* set dcm first module */
+       buf_send[0]=iadd+dcm2_5_firstdcm+(0x1<<16);   // bit 0 =1 on
+       ik=pcie_send(hDev2,1,1,px);
+       /* set last module*/
+       buf_send[0]=iadd+dcm2_5_lastdcm+(0x1<<16);    // bit 0 =1 on
+       ik=pcie_send(hDev2,1,1,px);
+       //
+       //
        ichip =5;
-       iadd = (imod_dcm<<11)+ (ichip<<8);
-       buf_send[0]=(imod_dcm <<11)+ (ichip << 8) + dcm2_5_readdata + ((nread-2)<< 16);  /* number word to read- (header+trailer)*/
-       buf_send[1]=0x5555aaaa;                                                      // -1 for the counter
-       ik = pcie_send(hDev2, 1, 1, px);  //** for dcm2 status read send 2 words **//
-       usleep(100);
-       i = pcie_rec(hDev2,0,2,nread,iprint,py);
-       if(iwrite != 1) {
-        printf(" header 1 = %x\n", read_array[0]);
-        printf(" header 2 = %x\n", read_array[1]);
-        printf(" header 3 = %x\n", read_array[2]);
-        printf(" header word = %x\n", (read_array[0]& 0xffff));
-        printf(" event number = %x\n", (((read_array[0])>>16)+((read_array[1] & 0xffff)<<16)));
-        printf(" word count = %x %d\n", iread, iread);
-        printf(" trail word = %x\n", ((read_array[2] >>16) & 0xffff));
-        scanf("%d", &i );
+       iadd=(imod_dcm<<11)+(ichip<<8);
+       /* set run =1 */
+       buf_send[0]=iadd+dcm2_run_on;
+       ik=pcie_send(hDev2,1,1,px);
+     } 
+     /* DONE when using DCM */
+
+
+     /* loop over each ADC modules */
+     for (ik =0; ik<nmod; ik++) { /* nmod = the number of ADC modules */
+
+       /* when using pulse generator */
+       if(igen ==1) {
+         // remove analog reset
+         imod = ik+imod_start;
+         ichip = sp_adc_slowcntl_sub;
+         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trg_tx_areset + (0<<16) ;
+         i= 1;
+         k= 1;
+         i = pcie_send_1(hDev, i, k, px);
+         usleep(10);
+
+         // remove digital reset
+         imod = ik+imod_start;
+         ichip = sp_adc_slowcntl_sub;
+         buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trg_tx_dreset + (0<<16) ;
+         i= 1;
+         k= 1;
+         i = pcie_send_1(hDev, i, k, px);
+         usleep(10);
+
+         printf(" trigger transmitter resets removed \n");
+         scanf("%d",&i);
+
+         for (is=0; is< 16; is++) {
+           imod = ik+imod_start;
+           ichip = sp_adc_slowcntl_sub;
+           buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_ch + (is<<16) ;
+           i= 1;
+           k= 1;
+           i = pcie_send_1(hDev, i, k, px);
+           usleep(10);
+
+           imod = ik+imod_start;
+           ichip = sp_adc_slowcntl_sub;
+           buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_dac + ((0xe00)<<16) ;
+           i= 1;
+           k= 1;
+           i = pcie_send_1(hDev, i, k, px);
+           usleep(10);
+
+           imod = ik+imod_start;
+           ichip = sp_adc_slowcntl_sub;
+           buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_send + (is<<16) ;
+           i= 1;
+           k= 1;
+           i = pcie_send_1(hDev, i, k, px);
+           usleep(10);
+
+           printf(" loading channel %d, dac value \n", is);
+         }
        }
-//
-       iread = read_array[2] & 0xffff;
-       nread = iread+1;
-       kword = (nread/2);
-       if(nread%2 !=0) kword = kword+1;
-//
-       i = pcie_rec(hDev2,0,1,nread,iprint,py);     // read out 2 32 bits words
-       buf_send[0]=(imod_dcm <<11)+ (ichip << 8) + dcm2_5_readdata + ((nread-2)<< 16);  /* number word to read- (header+trailer)*/
-       buf_send[1]=0x5555aaaa;                                                      // -1 for the counter
-       ik = pcie_send(hDev2, 1, 1, px);  //** for dcm2 status read send 2 words **//
+       /* DONE when using pulse generator */
+
+       imod = ik+imod_start;
+       ichip = sp_adc_slowcntl_sub;
+       buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_evt_sample + ((nsample-1)<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
        usleep(10);
-       i = pcie_rec(hDev2,0,2,nread,iprint,py);
-       for (i=0; i<(nread-1); i++) {
-//        u32Data = (idcm_read_array[2*i+1]<<16)+idcm_read_array[2*i+2];
-        u32Data = (read_array[i] & 0xffff0000) + (read_array[i+1] &0xffff);
-        read_array1[i] = u32Data;
-        if(iwrite != 1) {
-         if(i%8 == 0) printf("%3d",i);
-         printf(" %9x",u32Data);
-         if(i%8 == 7) printf("\n");
-        }
-       }
-       if(iwrite == 1) {
-        fprintf(outf,"%d\n", nread);
-        for (i=0; i<(nread-1); i++) {
-//        u32Data = (idcm_read_array[2*i+1]<<16)+idcm_read_array[2*i+2];
-         fprintf(outf," %9x",read_array1[i]);
-         if((i%8) == 7) fprintf(outf,"\n");
-        }
-        fprintf(outf,"\n");
-//        if((i%8) != 7) fprintf(outf,"\n");
-       }
-//       fprintf(outf,"\n");
 
-       if(iwrite != 1) {
-        if((i%8) != 7) printf("\n");
-        scanf("%d", &i );
-        printf(" event number = %d \n", ( read_array1[1] & 0xffff));
-        printf(" flag word = %x \n", (read_array1[2] & 0xffff));
-        printf(" detector ID = %x \n", (read_array1[3] & 0xffff));
-        printf(" module address = %x \n", (read_array1[4] & 0xffff));
-        printf(" clock number = %x \n", (read_array1[5] & 0xffff));
-//        printf(" FEM header = %x \n", (read_array1[6] & 0xffff));
-//        printf(" FEM module address= %x \n", (read_array1[7] & 0xffff));
-//        printf(" FEM event number = %d \n", (read_array1[8] & 0xffff));
-//        printf(" FEM clock number = %x \n", (read_array1[9] & 0xffff));
-       }
-//       iparity =0;
-       for (ic=0; ic< nmod; ic++ ){
-        ioffset = (64*nsample+4+2)*ic;              // 4 words header + 2 word parity
-        iparity =0;
-        if(iwrite !=1)printf(" FEM header = %x \n", (read_array1[6+ioffset] & 0xffff));
-        if(iwrite !=1)printf(" FEM module address= %x \n", (read_array1[7+ioffset] & 0xffff));
-        if(iwrite !=1)printf(" FEM event number = %d \n", (read_array1[8+ioffset] & 0xffff));
-        if(iwrite !=1)printf(" FEM clock number = %x \n", (read_array1[9+ioffset] & 0xffff));
+       //   set L1 delay  -- to 100
+       printf(" set L1 delay module %d\n", imod);
+       if((ipulse != 0) | (igen !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (l1_delay<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (0x10<<16) ; /* when not using pulse generator nor pulse */
+       printf("Line 3529:: buf_send = %x\n", buf_send[0]);
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-        for (is=0; is<4+(nsample*64); is++) {
-         if(is%2 == 0) u32Data = (read_array1[is+6+ioffset] & 0xffff) <<16;
-         else {
-          u32Data = u32Data + (read_array1[is+6+ioffset] & 0xffff);
-//         u32Data = u32Data+ ((read_array1[is+6] & 0xffff) <<16);
-          iparity = iparity ^ u32Data;
-         }
-        }
-        ioffset_t = ioffset + (64*nsample+4)+6;   // 4 words header + 5 event header -1 for array started at 0
-        i= ((read_array1[ioffset_t] & 0xffff) <<16) +(read_array1[ioffset_t+1] & 0xffff);
-        if(i != iparity) {
-         printf(" event = %d, module %d Partity error....... = %x %x\n", ia, (imod_start+ic), i, iparity);
-         if(iwrite != 1) scanf("%d", &i);
-        }
-        if(iwrite != 1) printf(" event = %d, Partity word = %x %x\n", ia, i, iparity);
+       //   set dat2link off
+       if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (1<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-        if(iwrite != 1) {
-         printf(" parity word = %x\n", iparity);
-         printf(" packet parity word = %x\n", (((read_array1[ioffset_t] & 0xffff) <<16) +(read_array1[ioffset_t+1] & 0xffff)));
-         scanf("%d", &i );
-         for (is=0; is<nsample; is++) {
-          for (k=0; k<32; k++) {
-           adc_data[k*2][is] = read_array1[11+ioffset+((k*nsample+is)*2)] & 0xffff;
-           adc_data[(k*2)+1][is] = read_array1[10+ioffset+((k*nsample+is)*2)] & 0xffff;
-          }
-         }
-         for (is=0; is<64; is++) {
-          printf(" channel %d ", is);
-          for (k=0; k<nsample; k++) {
-          printf(" %4x", adc_data[is][k]);
-         }
-          printf("\n");
-         }
-         scanf("%d", &i );
-        }
-       }
-      }
+       //   set dat2control  on
+       if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (0<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (1<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
+       //   set pulse trigger off
+       if(ipulse != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x1<<16) ;
+       else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-//
-//
-      else {
-       ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
-       for (ik =0; ik<nmod; ik++) {
-        imod = ik+imod_start;
-        iparity =0;
+       //   set calibarion trigger on/off
+       if(igen != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x1<<16) ;
+       else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-//
-        if(iwrite != 1) {
-         printf(" type 1 to send the transfer \n");
-         scanf("%d",&is);
-        }
-        buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_readback_transfer + (0<<16) ;
-        i= 1;
-        k= 1;
-        i = pcie_send_1(hDev, i, k, px);
-        usleep(100);
-//
-//
-//
-        nread =2+(64*nsample/2)+1;
-        i = pcie_rec_2(hDev,0,1,nread,iprint,py);     // read out 2 32 bits words
-
-        if(iwrite != 1) {
-         printf(" type 1 to send the read \n");
-         scanf("%d",&is);
-        }
-        buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_readback_read + (1<<16) ;
-        i= 1;
-        k= 1;
-        i = pcie_send_1(hDev, i, k, px);
-        usleep(100);
-//
-//
-        i = pcie_rec_2(hDev,0,2,nread,iprint,py);     // read out 2 32 bits words
-        for (is=0; is< nread-1; is++) {
-          iparity = iparity ^ read_array[is];
-        }
-
-        if (iwrite == 1) {
-         fprintf(outf," %x\n", read_array[0]);
-         fprintf(outf," %x\n", read_array[1]);
-        }
-        else {
-         printf(" header 1 = %x\n", read_array[0]);
-         printf(" header 2 = %x\n", read_array[1]);
-        }
-
-        k=0;
-        for (is=0; is< (nread-2); is++) {
-         if(iwrite == 1) {
-          fprintf(outf," %8X", read_array[is+2]);
-         }
-         else {
-          if(is%8 ==0) printf(" %d ", is);
-          printf(" %x", read_array[is+2]);
-         }
-         k=k+1;
-         if(iwrite == 1) {
-          if((k%8) ==0) fprintf(outf,"\n");
-         }
-         else {
-          if((k%8) ==0) printf("\n");
-         }
-        }
-        if(iwrite == 1) {
-          if((is%8) !=0) fprintf(outf,"\n");
-        }
-        else {
-         if((is%8) !=0) printf("\n");
-        }
-
-        if (iwrite != 1) printf(" data parity = %x generated parity = %x  \n", read_array[is+1], iparity);
-        if(read_array[is+1] !=  iparity) {
-         printf(" event = %d, Partity error....... = %x %x\n", ia,read_array[is+1], iparity);
-//         scanf("%d", &i);
-        }
-        if(iwrite == 1) fprintf(outf,"\n");
-        else printf("\n");
-//        printf(" parity = %x  \n", iparity);
-
-        if(iwrite != 1) {
-         printf(" header = %x \n", (read_array[0] & 0xffff));
-         printf(" module number = %d \n", ((read_array[0]>> 16) & 0x1f));
-         printf(" triggernumber = %x \n", (read_array[1] & 0xffff));
-         printf(" beam crossing number = %x \n", ((read_array[1]>> 16) & 0xffff));
-         for (is=0; is< nsample; is++ ) {
-          for (k=0; k< 32; k++) {
-//        adc_data[(k*2)][is] = read_array[(is*32)+k+2] & 0xffff;
-//        adc_data[((k*2)+1)][is] = (read_array[(is*32)+k+2] >>16) & 0xffff;
-           /* adc_data[(k*2)][is] = read_array[(k*nsample)+is+2] & 0xffff; */
-           /* adc_data[((k*2)+1)][is] = (read_array[(k*nsample)+is+2] >>16) & 0xffff; */
-		/* yeonju test 2022 Jul 13 */ 
-           adc_data[k*2][is*2] = read_array[(k*nsample)+is+2] & 0xffff;
-           adc_data[k*2][is*2+1] = (read_array[(k*nsample)+is+2] >>16) & 0xffff;
-           adc_data[(k*2)+1][is*2] = read_array[(k*nsample)+(nsample/2)+is+2] & 0xffff;
-           adc_data[(k*2)+1][is*2+1] = (read_array[(k*nsample)+(nsample/2)+is+2] >>16) & 0xffff;
-           /* adc_data[(k*2)][is] = read_array[(k*nsample)+is+2] & 0xffff; */
-           //adc_data[(k*2)][is+1] = (read_array[(k*nsample)+is+2] >>16) & 0xffff;
-          }
-         }
-
-
-         for (is=0; is<64; is++) {
-         printf(" channel %d ", is);
-         for (k=0; k<nsample; k++) {
-          printf(" %4x", adc_data[is][k]);
-         }
-         printf("\n");
-         }
-        }
-
-
-        if(iwrite != 1) {
-         printf(" type 1 to continue \n");
-         scanf("%d",&is);
-        }
-       }
-      }
-//     fclose(inputf);
-
-
-//#define  sp_adc_readback_sub        4
-//#define  sp_adc_readback_transfer   1
-//#define  sp_adc_readback_read       2
-//#define  sp_adc_readback_status     3
-
-//
-      if(iwrite ==1) {
-       if((ia%10) == 0) printf(" write evennt = %d \n", ia);
-      }
-     }
-      if(iwrite ==1 ) {
-       printf(" event looop finished, type 1 to continue \n");
-       fclose(outf);
-       printf("close file \n");
+       //   set test trigger off
+       printf(" type 1 to set test ram state  \n");
        scanf("%d",&is);
-      }
+       //
+       //   verilog code issue I don't understand so I flip the test pulse bit
+       //
+
+       //      if(itest_ram == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_test_trig + (0x1<<16) ;
+       //      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_test_trig + (0x0<<16) ;
+       if(itest_ram == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x1<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+
+       //   set select L1 trigger on
+       printf(" type 1 to select L1 trigger \n");
+       scanf("%d",&is);
+       if((ipulse != 0) | (igen  !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x0<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x1<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+
+       /* when using XMIT */
+       //    if select xmit module and not last module tunr off link_rxoff
+       if(isel_xmit == 1) {
+         if(imod != imod_start) {
+           ichip = sp_adc_slowcntl_sub;
+           buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_link_rxoff + (0<<16) ;
+           i= 1;
+           k= 1;
+           i = pcie_send_1(hDev, i, k, px);
+           usleep(10);
+           printf(" rx_off called , module %d\n", imod);
+         }
+       }
+       /* DONE when using XMIT */
+
+
+       printf(" call adc setup  module %d\n", imod);
+       i = adc_setup(hDev,imod, 1);
+       scanf("%d",&is);
+       if(itest_ram == 1) {
+         printf(" call adc setup  module %d\n", imod);
+         scanf("%d",&is);
+         i = adc_testram_load(hDev,imod, 400); /* HERE WE SEND DATA */
+       }
+
+     } /* DONE nmod loop */
+
+     /* when using XMIT */
+     //sp_xmit_lastmod
+     if(isel_xmit == 1) {
+       imod = imod_xmit;
+       ichip = sp_xmit_sub;
+       buf_send[0]=(imod <<11)+ (ichip << 8) + sp_xmit_lastmod + (imod_start<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+       printf(" set last module %d\n", imod_start);
      }
+     /* DONE when using XMIT */
+
+
+
+     /* EVENT LOOP */
+     for (j=0; j<nloop; j++) {
+       //   send L1 trigger to the controller
+       for (ia=0; ia<nevent; ia++) {
+
+         if(iwrite != 1) {
+           printf(" type 1 to send L1 trigger \n");
+           scanf("%d",&is);
+         }
+
+         /* ADC module loop */
+         for (ik =0; ik<nmod; ik++) {
+           imod = ik+imod_start;
+           nword =3;
+           py = &read_array;
+           //     command no-op to enable module output enable
+           // otherwise the LVDS input at controller will be floating high
+           ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
+           buf_send[0]=(imod<<11)+(ichip<<8)+(8) + (0x0<<16);  // read out status
+           i=1;
+           k=1;
+           i = pcie_send_1(hDev, i, k, px);
+
+           i = pcie_rec_2(hDev,0,1,nword,iprint,py);       // init receiver
+
+           ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
+           buf_send[0]=(imod<<11)+(ichip<<8)+(sp_adc_readback_status) + (0x0<<16);  // read out status
+           i=1;
+           k=1;
+           i = pcie_send_1(hDev, i, k, px);
+           usleep(10);
+           py = &read_array;
+           i = pcie_rec_2(hDev,0,2,nword,iprint,py);     // read out 2 32 bits words
+                                                         
+           if(iwrite != 1) {
+             printf("module %d receive data word = %x, %x, %x\n", imod, read_array[0], read_array[1], read_array[2]);
+             printf (" header word = %x \n" ,((read_array[0] & 0xffff) >> 8));
+             printf (" module address = %d \n" ,(read_array[0] & 0x1f));
+             printf (" upper adc rx pll locked %d\n", ((read_array[0] >>31) & 0x1));
+             printf (" upper adc rx dpa locked %d\n", ((read_array[0] >>30) & 0x1));
+             printf (" upper adc rx aligment %d\n", ((read_array[0] >>29) & 0x1));
+             printf (" upper adc rx data valid %d\n", ((read_array[0] >>28) & 0x1));
+             printf (" lower adc rx pll locked %d\n", ((read_array[0] >>27) & 0x1));
+             printf (" lower adc rx dpa locked %d\n", ((read_array[0] >>26) & 0x1));
+             printf (" lower adc rx aligment %d\n", ((read_array[0] >>25) & 0x1));
+             printf (" lower adc rx data valid %d\n", ((read_array[0] >>24) & 0x1));
+             printf (" link pll locked %d\n", ((read_array[0] >>23) & 0x1));
+             printf (" clock pll locked %d\n", ((read_array[0] >>22) & 0x1));
+             printf (" trigger bufer empty %d\n", ((read_array[0] >>21) & 0x1));
+             printf (" firmware version %d\n", ((read_array[2]>>8) & 0xff));
+             printf (" firmware sub version %d\n", ((read_array[2]) & 0xff));
+             printf (" firmware version header %x\n", ((read_array[2])>>16));
+           }
+         }
+         /* DONE ADC module loop */
+
+         /* when using pulse */
+         if(ipulse != 0) buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ ((sp_cntrl_pulse)<<16);
+         else if (igen != 0) { /* when using pulse generator*/
+           idac_shaper = (ia/nstep_event);
+           if(ifix_dac != 1) idac_shaper = idac_shaper *nstep_dac;    //set up the dac value
+           else idac_shaper = 4000;
+
+           imod = imod_start;
+           for (is=0; is< 16; is++) {
+             ic= ipattern>> is;
+             if((ic & 0x1) != 1) idac_shaper_load =0;
+             else idac_shaper_load = idac_shaper;
+             ichip = sp_adc_slowcntl_sub;
+             buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_ch + (is<<16) ;
+             i= 1;
+             k= 1;
+             i = pcie_send_1(hDev, i, k, px);
+             usleep(10);
+
+             imod = imod_start;
+             ichip = sp_adc_slowcntl_sub;
+             buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_dac + ((idac_shaper_load)<<16) ;
+             i= 1;
+             k= 1;
+             i = pcie_send_1(hDev, i, k, px);
+             usleep(10);
+
+             imod = imod_start;
+             ichip = sp_adc_slowcntl_sub;
+             buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_send + (is<<16) ;
+             i= 1;
+             k= 1;
+             i = pcie_send_1(hDev, i, k, px);
+             usleep(10);
+
+             printf(" loading channel %d, dac value %d , ia= %d, ic= %d \n", is, idac_shaper_load, ia,ic );
+           } /* loop over the bits in a given word? */
+
+           imod = imod_start;
+           ichip = sp_adc_slowcntl_sub;
+           buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x1<<16) ;
+           i= 1;
+           k= 1;
+           i = pcie_send_1(hDev, i, k, px);
+           usleep(1);
+
+           ichip = sp_adc_slowcntl_sub;
+           buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_calib_gate + (0x0<<16) ;
+           i= 1;
+           k= 1;
+           i = pcie_send_1(hDev, i, k, px);
+           usleep(10);
+         } /* DONE when using pulse generator*/
+         
+         else if ((iext_trig != 1) & (igen != 1) )buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ ((sp_cntrl_l1)<<16);
+
+         i= 1;
+         k= 1;
+         if((iext_trig != 1) & (igen != 1)) i = pcie_send_1(hDev, i, k, px);
+         usleep(100);
+
+         if(iwrite != 1) {
+           if(iext_trig != 1) {
+             printf(" trigger send \n");
+             scanf("%d",&is);
+           }
+         }
+
+         /* when using external trigger */
+         if(iext_trig == 1) {
+           ik =0;
+           while (ik != 1) {
+             imod = imod_start;
+             nword =1;
+             py = &read_array;
+             //     command no-op to enable module output enable
+             // otherwise the LVDS input at controller will be floating high
+             ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
+             buf_send[0]=(imod<<11)+(ichip<<8)+(8) + (0x0<<16);  // read out status
+             i=1;
+             k=1;
+             i = pcie_send_1(hDev, i, k, px);
+
+
+             i = pcie_rec_2(hDev,0,1,nword,iprint,py);       // init receiver
+             ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
+             buf_send[0]=(imod<<11)+(ichip<<8)+(sp_adc_readback_status) + (0x0<<16);  // read out status
+             i=1;
+             k=1;
+             i = pcie_send_1(hDev, i, k, px);
+             usleep(10);
+             py = &read_array;
+             i = pcie_rec_2(hDev,0,2,nword,iprint,py);     // read out 2 32 bits words
+             if (((read_array[0] >>21) & 0x1) == 0) {
+               printf(" trigger received \n");
+               ik=1;
+             }
+           }
+         } 
+         /* DONE when using external trigger */
+
+         /* when using DCM */
+         if(isel_dcm == 1) {
+           nread = 3;
+           i = pcie_rec(hDev2,0,1,nread,iprint,py);     // read out 2 32 bits words
+           ichip =5;
+           iadd = (imod_dcm<<11)+ (ichip<<8);
+           buf_send[0]=(imod_dcm <<11)+ (ichip << 8) + dcm2_5_readdata + ((nread-2)<< 16);  /* number word to read- (header+trailer)*/
+           buf_send[1]=0x5555aaaa;                                                      // -1 for the counter
+           ik = pcie_send(hDev2, 1, 1, px);  //** for dcm2 status read send 2 words **//
+           usleep(100);
+           i = pcie_rec(hDev2,0,2,nread,iprint,py);
+           if(iwrite != 1) {
+             printf(" header 1 = %x\n", read_array[0]);
+             printf(" header 2 = %x\n", read_array[1]);
+             printf(" header 3 = %x\n", read_array[2]);
+             printf(" header word = %x\n", (read_array[0]& 0xffff));
+             printf(" event number = %x\n", (((read_array[0])>>16)+((read_array[1] & 0xffff)<<16)));
+             printf(" word count = %x %d\n", iread, iread);
+             printf(" trail word = %x\n", ((read_array[2] >>16) & 0xffff));
+             scanf("%d", &i );
+           }
+           
+           iread = read_array[2] & 0xffff;
+           nread = iread+1;
+           kword = (nread/2);
+           if(nread%2 !=0) kword = kword+1;
+           
+           i = pcie_rec(hDev2,0,1,nread,iprint,py);     // read out 2 32 bits words
+           buf_send[0]=(imod_dcm <<11)+ (ichip << 8) + dcm2_5_readdata + ((nread-2)<< 16);  /* number word to read- (header+trailer)*/
+           buf_send[1]=0x5555aaaa;                                                      // -1 for the counter
+           ik = pcie_send(hDev2, 1, 1, px);  //** for dcm2 status read send 2 words **//
+           usleep(10);
+           i = pcie_rec(hDev2,0,2,nread,iprint,py);
+           for (i=0; i<(nread-1); i++) {
+             //        u32Data = (idcm_read_array[2*i+1]<<16)+idcm_read_array[2*i+2];
+             u32Data = (read_array[i] & 0xffff0000) + (read_array[i+1] &0xffff);
+             read_array1[i] = u32Data;
+             if(iwrite != 1) {
+               if(i%8 == 0) printf("%3d",i);
+               printf(" %9x",u32Data);
+               if(i%8 == 7) printf("\n");
+             }
+           }
+           if(iwrite == 1) {
+             fprintf(outf,"%d\n", nread);
+             for (i=0; i<(nread-1); i++) {
+               //        u32Data = (idcm_read_array[2*i+1]<<16)+idcm_read_array[2*i+2];
+               fprintf(outf," %9x",read_array1[i]);
+               if((i%8) == 7) fprintf(outf,"\n");
+             }
+             fprintf(outf,"\n");
+             //        if((i%8) != 7) fprintf(outf,"\n");
+           }
+           //       fprintf(outf,"\n");
+
+           if(iwrite != 1) {
+             if((i%8) != 7) printf("\n");
+             scanf("%d", &i );
+             printf(" event number = %d \n", ( read_array1[1] & 0xffff));
+             printf(" flag word = %x \n", (read_array1[2] & 0xffff));
+             printf(" detector ID = %x \n", (read_array1[3] & 0xffff));
+             printf(" module address = %x \n", (read_array1[4] & 0xffff));
+             printf(" clock number = %x \n", (read_array1[5] & 0xffff));
+             //        printf(" FEM header = %x \n", (read_array1[6] & 0xffff));
+             //        printf(" FEM module address= %x \n", (read_array1[7] & 0xffff));
+             //        printf(" FEM event number = %d \n", (read_array1[8] & 0xffff));
+             //        printf(" FEM clock number = %x \n", (read_array1[9] & 0xffff));
+           }
+           for (ic=0; ic< nmod; ic++ ){
+             ioffset = (64*nsample+4+2)*ic;              // 4 words header + 2 word parity
+             iparity =0;
+             if(iwrite !=1)printf(" FEM header = %x \n", (read_array1[6+ioffset] & 0xffff));
+             if(iwrite !=1)printf(" FEM module address= %x \n", (read_array1[7+ioffset] & 0xffff));
+             if(iwrite !=1)printf(" FEM event number = %d \n", (read_array1[8+ioffset] & 0xffff));
+             if(iwrite !=1)printf(" FEM clock number = %x \n", (read_array1[9+ioffset] & 0xffff));
+
+             for (is=0; is<4+(nsample*64); is++) {
+               if(is%2 == 0) u32Data = (read_array1[is+6+ioffset] & 0xffff) <<16;
+               else {
+                 u32Data = u32Data + (read_array1[is+6+ioffset] & 0xffff);
+                 //         u32Data = u32Data+ ((read_array1[is+6] & 0xffff) <<16);
+                 iparity = iparity ^ u32Data;
+               }
+             }
+             ioffset_t = ioffset + (64*nsample+4)+6;   // 4 words header + 5 event header -1 for array started at 0
+             i= ((read_array1[ioffset_t] & 0xffff) <<16) +(read_array1[ioffset_t+1] & 0xffff);
+             if(i != iparity) {
+               printf(" event = %d, module %d Partity error....... = %x %x\n", ia, (imod_start+ic), i, iparity);
+               if(iwrite != 1) scanf("%d", &i);
+             }
+             if(iwrite != 1) printf(" event = %d, Partity word = %x %x\n", ia, i, iparity);
+
+             if(iwrite != 1) {
+               printf(" parity word = %x\n", iparity);
+               printf(" packet parity word = %x\n", (((read_array1[ioffset_t] & 0xffff) <<16) +(read_array1[ioffset_t+1] & 0xffff)));
+               scanf("%d", &i );
+               for (is=0; is<nsample; is++) {
+                 for (k=0; k<32; k++) {
+                   adc_data[k*2][is] = read_array1[11+ioffset+((k*nsample+is)*2)] & 0xffff;
+                   adc_data[(k*2)+1][is] = read_array1[10+ioffset+((k*nsample+is)*2)] & 0xffff;
+                 }
+               }
+               for (is=0; is<64; is++) {
+                 printf(" channel %d ", is);
+                 for (k=0; k<nsample; k++) {
+                   printf(" %4x", adc_data[is][k]);
+                 }
+                 printf("\n");
+               }
+               scanf("%d", &i );
+             }
+           }
+         } 
+         /* DONE when using DCM */
+
+         else {
+           ichip = sp_adc_readback_sub ;   // controller data go to ADC input section
+           for (ik =0; ik<nmod; ik++) { /* nmod is the number of FEM modules */
+             imod = ik+imod_start;
+             iparity =0;
+
+             if(iwrite != 1) {
+               printf(" type 1 to send the transfer \n");
+               scanf("%d",&is);
+             }
+
+             buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_readback_transfer + (0<<16) ;
+             i= 1;
+             k= 1;
+             i = pcie_send_1(hDev, i, k, px);
+             usleep(100);
+
+
+             nread =2+(64*nsample/2)+1;
+             i = pcie_rec_2(hDev,0,1,nread,iprint,py);     // read out 2 32 bits words
+
+             if(iwrite != 1) {
+               printf(" type 1 to send the read \n");
+               scanf("%d",&is);
+             }
+
+             buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_readback_read + (1<<16) ;
+             i= 1;
+             k= 1;
+             i = pcie_send_1(hDev, i, k, px);
+             usleep(100);
+
+             /* /1* print out the sended data *1/ */
+             /* printf("Sended data\n"); */
+             /* for (is=0; is<nread; is++) { */
+             /*   printf(" %x", buf_send[is]); */
+             /*   if((is%8)==0) printf("\n"); */
+             /* } */
+
+
+             i = pcie_rec_2(hDev,0,2,nread,iprint,py);     // read out 2 32 bits words
+             for (is=0; is< nread-1; is++) {
+               iparity = iparity ^ read_array[is];
+             }
+
+             if (iwrite == 1) {
+               fprintf(outf," %x\n", read_array[0]);
+               fprintf(outf," %x\n", read_array[1]);
+             }
+             else {
+               printf(" header 1 = %x\n", read_array[0]);
+               printf(" header 2 = %x\n", read_array[1]);
+             }
+
+             k=0;
+             for (is=0; is< (nread-2); is++) {
+               if(iwrite == 1) {
+                 fprintf(outf," %8X", read_array[is+2]);
+               }
+               else {
+                 if(is%8 ==0) printf(" %d ", is);
+                 printf(" %x", read_array[is+2]);
+               }
+               k=k+1;
+               if(iwrite == 1) {
+                 if((k%8) ==0) fprintf(outf,"\n");
+               }
+               else {
+                 if((k%8) ==0) printf("\n");
+               }
+             }
+             if(iwrite == 1) {
+               if((is%8) !=0) fprintf(outf,"\n");
+             }
+             else {
+               if((is%8) !=0) printf("\n");
+             }
+
+             if (iwrite != 1) printf(" data parity = %x generated parity = %x  \n", read_array[is+1], iparity);
+             if(read_array[is+1] !=  iparity) {
+               printf(" event = %d, Partity error....... = %x %x\n", ia,read_array[is+1], iparity);
+               //         scanf("%d", &i);
+             }
+             if(iwrite == 1) fprintf(outf,"\n");
+             else printf("\n");
+             //        printf(" parity = %x  \n", iparity);
+
+             if(iwrite != 1) {
+               printf(" header = %x \n", (read_array[0] & 0xffff));
+               printf(" module number = %d \n", ((read_array[0]>> 16) & 0x1f));
+               printf(" triggernumber = %x \n", (read_array[1] & 0xffff));
+               printf(" beam crossing number = %x \n", ((read_array[1]>> 16) & 0xffff));
+               for (is=0; is< nsample; is++ ) {
+                 for (k=0; k< 32; k++) {
+                   //        adc_data[(k*2)][is] = read_array[(is*32)+k+2] & 0xffff;
+                   //        adc_data[((k*2)+1)][is] = (read_array[(is*32)+k+2] >>16) & 0xffff;
+                   /* adc_data[(k*2)][is] = read_array[(k*nsample)+is+2] & 0xffff; */
+                   /* adc_data[((k*2)+1)][is] = (read_array[(k*nsample)+is+2] >>16) & 0xffff; */
+                   /* yeonju test 2022 Jul 13 */ 
+                   adc_data[k*2][is*2] = read_array[(k*nsample)+is+2] & 0xffff;
+                   adc_data[k*2][is*2+1] = (read_array[(k*nsample)+is+2] >>16) & 0xffff;
+                   adc_data[(k*2)+1][is*2] = read_array[(k*nsample)+(nsample/2)+is+2] & 0xffff;
+                   adc_data[(k*2)+1][is*2+1] = (read_array[(k*nsample)+(nsample/2)+is+2] >>16) & 0xffff;
+                 }
+               }
+
+               for (is=0; is<64; is++) {
+                 printf(" channel %d ", is);
+                 for (k=0; k<nsample; k++) {
+                   printf(" %4x", adc_data[is][k]);
+                 }
+                 printf("\n");
+               }
+
+               /* /1* comparison between sended data and received data *1/ */
+               /* printf("Sended data\n"); */
+               /* for (is=0; is<nread; is++) { */
+               /*   printf(" %x", buf_send[is]); */
+               /*   /1* printf(" %4x", buf_send[is]); *1/ */
+               /*   if((is%8)==0) printf("\n"); */
+               /* } */
+             }//if iwrite = 1;
+
+             if(iwrite != 1) {
+               printf(" type 1 to continue \n");
+               scanf("%d",&is);
+             }
+           }
+         }
+         /* DONE when NOT using DCM */
+
+         if(iwrite ==1) {
+           if((ia%10) == 0) printf(" write evennt = %d \n", ia);
+         }
+
+       } /* DONE EVENT LOOP? */
+
+       if(iwrite ==1 ) {
+         printf(" event looop finished, type 1 to continue \n");
+         fclose(outf);
+         printf("close file \n");
+         scanf("%d",&is);
+       }
+     }
+     /* DONE nloop? */
+
      break;
 
 
 
-    case 5:
+      case 5:
      nloop=100 ;
      nevent =200;
      imod_start=18;
@@ -18345,46 +18234,43 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      ichip=6;
 //     nsample = 12;
      if(isel_dcm ==1) {
-      imod_dcm=11;
-      printf(" boot 5th FPGA \n");
-      i=dcm2_fpga_boot(hDev2,imod_dcm,1);
-      printf(" boot FPGA 1-4 \n");
-      i=dcm2_fpga_boot(hDev2,imod_dcm,2);
-      printf(" DCM II booting done \n");
-      scanf("%d",&i);
+       imod_dcm=11;
+       printf(" boot 5th FPGA \n");
+       i=dcm2_fpga_boot(hDev2,imod_dcm,1);
+       printf(" boot FPGA 1-4 \n");
+       i=dcm2_fpga_boot(hDev2,imod_dcm,2);
+       printf(" DCM II booting done \n");
+       scanf("%d",&i);
 
-      ioffset=4;
-      ichip =5;
-      iadd=(imod_dcm<<11)+(ichip<<8);  /* don't care about chip number **/
-/* set run =0 -- clear everything */
-      buf_send[0]=iadd+dcm2_run_off;
-      ik=pcie_send(hDev2,1,1,px);
+       ioffset=4;
+       ichip =5;
+       iadd=(imod_dcm<<11)+(ichip<<8);  /* don't care about chip number **/
+       /* set run =0 -- clear everything */
+       buf_send[0]=iadd+dcm2_run_off;
+       ik=pcie_send(hDev2,1,1,px);
      }
 
-//    for (j=0; j<nloop; j++) {
-//       if(inew == 1) {
-//
-	//       Initialization
+  /***************************************
+   * pcie_init
+   * ************************************/
      dwAddrSpace =2;
      u32Data = 0xf0000008;
      dwOffset = 0x28;
      WDC_WriteAddr32(hDev, dwAddrSpace, dwOffset, u32Data);
-//       }
      ifr=0;
 
-/** initialize **/
-/*      if(j ==0) { */
+     /** initialize **/
      buf_send[0]=0x0;
      buf_send[1]=0x0;
      i=1;
      k=1;
      i = pcie_send_1(hDev, i, k, px);
-//
-//
-//
+    
+     printf(" set the controller to offline state before reset can be applied \n");
 
-       printf(" set the controller to offline state before reset can be applied \n");
-//
+     /**********************************
+      * START _sp_adc_cmd_int16 
+      **********************************/
      imod=0;
      ichip=0;
      buf_send[0]=(imod<<11)+(ichip<<8)+(sp_cntrl_offline)+(0x1<<16); //enable offline run on
@@ -18392,25 +18278,27 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      i=1; 
      k=1;
      i = pcie_send_1(hDev, i, k, px);
+     /**********************************
+      * DONE _sp_adc_cmd_int16 
+      **********************************/
 
-//
-//
-//
+     /**********************************
+      * When using xmit 
+      **********************************/
      if(isel_xmit == 1) {
-      ichip = sp_xmit_sub;
+       ichip = sp_xmit_sub;
 
-      buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxanalogreset + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-      buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxdigitalreset + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxanalogreset + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+       buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxdigitalreset + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-//      for (ia=0; ia< 1000000; ia++) {
        printf(" type 1 to do the byte ordering \n");
        scanf("%d",&is);
        buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_rxbytord + (0<<16) ;
@@ -18418,23 +18306,23 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
        k= 1;
        i = pcie_send_1(hDev, i, k, px);
        usleep(10);
-//      }
 
-      buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_init + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       buf_send[0]=(imod_xmit <<11)+ (ichip << 8) + sp_xmit_init + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-      printf(" xmit reset complete type 1 to continue \n");
-      scanf("%d",&is);
-
-
-
+       printf(" xmit reset complete type 1 to continue \n");
+       scanf("%d",&is);
      }
-//
-//   send init to the controller
-//
+     /**********************************
+      * Done using xmit 
+      **********************************/
+
+     /**********************************
+      * send init to the controller _sp_adc_cmd_int16(&pcie, 0, 2, sp_cntrl_timing, sp_cntrl_init) 
+      **********************************/
      buf_send[0]= (0x2<<8)+sp_cntrl_timing+ (sp_cntrl_init<<16);//
      i= 1;
      k= 1;
@@ -18445,29 +18333,35 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      k= 1;
      i = pcie_send_1(hDev, i, k, px);
      usleep(10);
-//
-//   send reset to the controller
-//
+
+     /**********************************
+      * send reset to the controller _sp_adc_cmd_int16(&pcie, 0, 2, sp_cntrl_timing, sp_cntrl_init)
+      **********************************/
      printf(" type 1 to send reset \n");
      scanf("%d",&is);
 
-//     for (is =0; is<1000000000; is++) {
-      buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ (sp_cntrl_reset<<16);// imod = 0 this case, and it sends the command to the crate controller 
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(1000);
-//     }
-//    
-//static int   ntrig_mod, ntrig_chip, trig_fifo_delay, sync_step, opt_mask, ntrig_thr;
+     buf_send[0]= (0x2<<8)+ sp_cntrl_timing+ (sp_cntrl_reset<<16);// imod = 0 this case, and it sends the command to the crate controller 
+     i= 1;
+     k= 1;
+     i = pcie_send_1(hDev, i, k, px);
+     usleep(1000);
+
+
+
+     /***********************************
+      * ll1_setup for Ran's code 
+      * ********************************/
+     //static int   ntrig_mod, ntrig_chip, trig_fifo_delay, sync_step, opt_mask, ntrig_thr;
      imod_trig = ntrig_mod*2 + ntrig_chip;  // take care increse address bit by 2
 					    // just to separate the two chips in different module (imod_trig) numbers
      i = trigger_board_setup(hDev, imod_trig, trig_fifo_delay, sync_step, opt_mask, ntrig_thr);
-//#define  sp_L1_s10_slow_m_size     23
-//#define  sp_L1_s10_slow_m_delay    24
-//#define  sp_L1_s10_slow_rstblk     25
-//#define  sp_L1_s10_slow_dat2link   26
-//#define  sp_L1_s10_slow_dat2rbdk   27
+     /**************************************
+     //#define  sp_L1_s10_slow_m_size     23
+     //#define  sp_L1_s10_slow_m_delay    24
+     //#define  sp_L1_s10_slow_rstblk     25
+     //#define  sp_L1_s10_slow_dat2link   26
+     //#define  sp_L1_s10_slow_dat2rbdk   27
+      **************************************/
 
 
      // these are also the trigger board setup 
@@ -18481,8 +18375,7 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      k= 1;
      i = pcie_send_1(hDev, i, k, px);
      usleep(10);
-//
-//
+
      printf(" type 1 to set trigger board m_delay \n");
      scanf("%d",&is);
 
@@ -18492,106 +18385,99 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
      k= 1;
      i = pcie_send_1(hDev, i, k, px);
      usleep(10);
-//
-//// 
-//
-     if (L1trig_m_readmethod == 1) {
-      printf(" type 1 to set trigger board m_rstblk \n");
-      scanf("%d",&is);
 
-      ichip=0;
-      buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_rstblk  + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+     if (L1trig_m_readmethod == 1) {
+       printf(" type 1 to set trigger board m_rstblk \n");
+       scanf("%d",&is);
+
+       ichip=0;
+       buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_rstblk  + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
      }
-//
-//
+
      if (L1trig_m_readmethod == 2) {
-      printf(" type 1 to set trigger board dat2link \n");
-      scanf("%d",&is);
+       printf(" type 1 to set trigger board dat2link \n");
+       scanf("%d",&is);
 
-      ichip=0;
-      buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2link  + (0x1<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-      ichip=0;
-      buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2rbdk  + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       ichip=0;
+       buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2link  + (0x1<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+       ichip=0;
+       buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2rbdk  + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
      }
-//
-//
+
      if (L1trig_m_readmethod == 1) {
-      printf(" type 1 to set trigger board dat2bdk \n");
-      scanf("%d",&is);
+       printf(" type 1 to set trigger board dat2bdk \n");
+       scanf("%d",&is);
 
-      ichip=0;
-      buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2rbdk  + (0x1<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-      ichip=0;
-      buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2link  + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       ichip=0;
+       buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2rbdk  + (0x1<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+       //
+       ichip=0;
+       buf_send[0]=(imod_trig <<10)+ (ichip << 8) + sp_L1_s10_slow_dat2link  + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
      }
-//
-//
 
 
 
 
-//
-//   after initial the xmit and controller -- initialize the DCM II
-//
+     //
+     //   after initial the xmit and controller -- initialize the DCM II
+     //
      if(isel_dcm == 1) {
+       nmask = 0x1; /*turn non all channel */
+       for (i=1; i<5; i++) {
+         ichip=i;
+         iadd=(imod_dcm<<11)+(ichip<<8);
+         /* set module to online mode */
+         buf_send[0]=iadd+dcm2_online+(0x1<<16);
+         ik=pcie_send(hDev2,1,1,px);
+         /* set mask on for all channel*/
+         buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
+         ik=pcie_send(hDev2,1,1,px);
+       }
+       /** work on 5th FPGA **/
+       ichip=5;
+       iadd=(imod_dcm<<11)+(ichip<<8);
+       /* set module to offline mode */
+       buf_send[0]=iadd+dcm2_online+(0x0<<16);
+       ik=pcie_send(hDev2,1,1,px);
+       /* set mask on for all channel*/
+       buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
+       ik=pcie_send(hDev2,1,1,px);
 
-      nmask = 0x1; /*turn non all channel */
-      for (i=1; i<5; i++) {
-        ichip=i;
-        iadd=(imod_dcm<<11)+(ichip<<8);
-/* set module to online mode */
-        buf_send[0]=iadd+dcm2_online+(0x1<<16);
-        ik=pcie_send(hDev2,1,1,px);
-/* set mask on for all channel*/
-        buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
-        ik=pcie_send(hDev2,1,1,px);
-      }
-/** work on 5th FPGA **/
-      ichip=5;
-      iadd=(imod_dcm<<11)+(ichip<<8);
-/* set module to offline mode */
-      buf_send[0]=iadd+dcm2_online+(0x0<<16);
-      ik=pcie_send(hDev2,1,1,px);
-/* set mask on for all channel*/
-      buf_send[0]=iadd+dcm2_setmask+((nmask &0xff) <<16);
-      ik=pcie_send(hDev2,1,1,px);
-
-/* set dcm first module */
-      buf_send[0]=iadd+dcm2_5_firstdcm+(0x1<<16);   // bit 0 =1 on
-      ik=pcie_send(hDev2,1,1,px);
-/* set last module*/
-      buf_send[0]=iadd+dcm2_5_lastdcm+(0x1<<16);    // bit 0 =1 on
-      ik=pcie_send(hDev2,1,1,px);
-//
-//
-      ichip =5;
-      iadd=(imod_dcm<<11)+(ichip<<8);
-/* set run =1 */
-      buf_send[0]=iadd+dcm2_run_on;
-      ik=pcie_send(hDev2,1,1,px);
+       /* set dcm first module */
+       buf_send[0]=iadd+dcm2_5_firstdcm+(0x1<<16);   // bit 0 =1 on
+       ik=pcie_send(hDev2,1,1,px);
+       /* set last module*/
+       buf_send[0]=iadd+dcm2_5_lastdcm+(0x1<<16);    // bit 0 =1 on
+       ik=pcie_send(hDev2,1,1,px);
+       //
+       //
+       ichip =5;
+       iadd=(imod_dcm<<11)+(ichip<<8);
+       /* set run =1 */
+       buf_send[0]=iadd+dcm2_run_on;
+       ik=pcie_send(hDev2,1,1,px);
      }
 
 
@@ -18600,120 +18486,113 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
       ***********************************************/
      for (ik =0; ik<nmod; ik++) {
 
-      imod = ik+imod_start;
-      ichip = sp_adc_slowcntl_sub;
-      buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_evt_sample + ((nsample-1)<<16) ;// nsample: the number of clock cycle for which you keep the data
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       imod = ik+imod_start;
+       ichip = sp_adc_slowcntl_sub;
+       buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_evt_sample + ((nsample-1)<<16) ;// nsample: the number of clock cycle for which you keep the data
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-     /************************************************
-      * set L1 delay (some setup) 
-      ***********************************************/
-      printf(" set L1 delay module %d\n", imod);
-      if((ipulse != 0) | (igen !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (l1_delay<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (0x10<<16) ; // 0x10 (in hexadecimal) = 00010000 (in binary) = 16 (in decimal)
-      printf(" buf_send = %x\n", buf_send[0]);
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       /************************************************
+        * set L1 delay (some setup) 
+        ***********************************************/
+       printf(" set L1 delay module %d\n", imod);
+       if((ipulse != 0) | (igen !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (l1_delay<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_l1_delay + (0x10<<16) ; // 0x10 (in hexadecimal) = 00010000 (in binary) = 16 (in decimal)
+       printf(" buf_send = %x\n", buf_send[0]);
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-     /************************************************
-      * set dat2link off (some setup)
-      ***********************************************/
-      if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (1<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-      
-     /************************************************
-      *set dat2control on (some setup)
-      ***********************************************/
-      if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (0<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (1<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       /************************************************
+        * set dat2link off (some setup)
+        ***********************************************/
+       if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (1<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_link + (0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-     /************************************************
-      *set pulse trigger off (some setup)
-      ***********************************************/
-      if(ipulse != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x1<<16) ;
-      else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       /************************************************
+        *set dat2control on (some setup)
+        ***********************************************/
+       if(isel_xmit == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (0<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_rd_cntrl + (1<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
-     /************************************************
-      *set calibration trigger on/off
-      ***********************************************/
-      if(igen != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x1<<16) ;
-      else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
+       /************************************************
+        *set pulse trigger off (some setup)
+        ***********************************************/
+       if(ipulse != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x1<<16) ;
+       else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_pulse + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+
+       /************************************************
+        *set calibration trigger on/off
+        ***********************************************/
+       if(igen != 0) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x1<<16) ;
+       else  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_caltrig + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
 
-//
-//   set test trigger off
-//
-      printf(" type 1 to set test ram state  \n");
-      scanf("%d",&is);
-//
-//   verilog code issue I don't understand so I flip the test pulse bit
-//
-
-//      if(itest_ram == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_test_trig + (0x1<<16) ;
-//      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_test_trig + (0x0<<16) ;
-      if(itest_ram == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x1<<16) ;// itest_ram is 1..
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x0<<16) ;
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//
-//   set select L1 trigger on
-//
-      printf(" type 1 to select L1 trigger \n");
-      scanf("%d",&is);
-//      if((ipulse != 0) | (igen  !=0) | (itest_ram != 0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x0<<16) ;
-      if((ipulse != 0) | (igen  !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x0<<16) ;
-      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x1<<16) ;/* this one */
-      i= 1;
-      k= 1;
-      i = pcie_send_1(hDev, i, k, px);
-      usleep(10);
-//      printf(" set up complete type 1 to continue \n");
-//      scanf("%d",&is);
-//
-//    if select xmit module and not last module tunr off link_rxoff
-//
-      printf(" call adc setup  module %d\n", imod);
-      i = adc_setup(hDev,imod, 1);
-      scanf("%d",&is);
-      if(itest_ram == 1) {
-       printf(" call adc setup  module %d\n", imod);
+       //
+       //   set test trigger off
+       //
+       printf(" type 1 to set test ram state  \n");
        scanf("%d",&is);
-       i = adc_testram_trig_load_mbd(hDev,imod, /*delay=*/400,1, 0x3fff, 0x3fff);
-//       if(ik == 0) i = adc_testram_trig_load_mbd(hDev,imod, 400,1, 0x3fff, 0x3fff);
-//       if(ik == 1) i = adc_testram_trig_load_1(hDev,imod, 400,2, 0x3fff);
-//       if(ik == 2) i = adc_testram_trig_load_1(hDev,imod, 400,1, 0x3fff);
-      }
-//sp_adc_sel_link_rxoff
+       //
+       //   verilog code issue I don't understand so I flip the test pulse bit
+       //
 
-     /************************************************
-      * setup DONE 
-      ***********************************************/
+       if(itest_ram == 1) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x1<<16) ;// itest_ram is 1..
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_test_pulse + (0x0<<16) ;
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
+       //
+       //   set select L1 trigger on
+       //
+       printf(" type 1 to select L1 trigger \n");
+       scanf("%d",&is);
+       if((ipulse != 0) | (igen  !=0)) buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x0<<16) ;
+       else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_sel_l1 + (0x1<<16) ;/* this one */
+       i= 1;
+       k= 1;
+       i = pcie_send_1(hDev, i, k, px);
+       usleep(10);
 
+       //
+       //    if select xmit module and not last module tunr off link_rxoff
+       //
+       printf(" call adc setup  module %d\n", imod);
+       i = adc_setup(hDev,imod, 1);
+       scanf("%d",&is);
+       if(itest_ram == 1) {
+         printf(" call adc setup  module %d\n", imod);
+         scanf("%d",&is);
+         i = adc_testram_trig_load_mbd(hDev,imod, /*delay=*/400,1, 0x3fff, 0x3fff);
+         //       if(ik == 0) i = adc_testram_trig_load_mbd(hDev,imod, 400,1, 0x3fff, 0x3fff);
+         //       if(ik == 1) i = adc_testram_trig_load_1(hDev,imod, 400,2, 0x3fff);
+         //       if(ik == 2) i = adc_testram_trig_load_1(hDev,imod, 400,1, 0x3fff);
+       }
+       //sp_adc_sel_link_rxoff
 
-
+       /************************************************
+        * ADC setup DONE 
+        ***********************************************/
      }
 //sp_xmit_lastmod
      if(isel_xmit == 1) {
@@ -25013,7 +24892,7 @@ static int adc_testram_load(WDC_DEVICE_HANDLE hDev, int imod, int idelay)
 #define  sp_adc_readback_transfer   1
 #define  sp_adc_readback_read       2
 #define  sp_adc_readback_status     3
-#
+
 #define  sp_adc_input_sub           2
 #define  sp_adc_slowcntl_sub        1
 
@@ -25086,12 +24965,13 @@ static int adc_testram_load(WDC_DEVICE_HANDLE hDev, int imod, int idelay)
 //     scanf("%d", &i);
      for (iad =0; iad<512 ; iad++) {
       idata =  ich*128+iad;
+      /* printf(" %d", idata); */
       buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_load_data + (idata<<16) ;
       i= 1;
       k= 1;
       i = pcie_send_1(hDev, i, k, px);
       usleep(1);
-//      printf(" load testram ch = %d, address %d\n", ich, iad);
+      /* printf(" load testram ch = %d, address %d\n", ich, iad); */
 //      scanf("%d", &i);
      }
     }
@@ -26095,42 +25975,42 @@ static int adc_testram_trig_load_mbd(WDC_DEVICE_HANDLE hDev, int imod, int idela
     ichip = sp_adc_input_sub ;   // controller data go to ADC input section
     istart =10; /* offset */
     iwidth =6; /* width of the data */
-//    iph = 0x3fff;
+    //    iph = 0x3fff;
     trig_rw_delay =6;
 
     for (ich =0; ich< 64; ich++) {
-//     iz = ich/4; 
-     /* set channel 0 to 64 */
+      //     iz = ich/4; 
+      /* set channel 0 to 64 */
       /* sp_adc_testram_load_ch: which channel you want to load? */ 
-     if(ich== 0)  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_load_ch + (64<<16); /* especially channel 0 should be set to some other value which is 64 here because 0 usually means invalid in Chi's FPGA code */ 
-     else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_load_ch + (ich<<16) ;
-     i= 1;
-     k= 1;
-     i = pcie_send_1(hDev, i, k, px);
-     usleep(1);
-     printf(" load testram ch = %d, module %d\n", ich, imod); // module = ADC slot number in the crate
-//     scanf("%d", &i);
-     for (iad =0; iad<512 ; iad++) {// 512: total number of clock cycle
-      if ( pattern[ich] !=0) {
-        idata=0;
-        for (i=0; i< nrepeat; i++) {
-         if((iad >= (istart+(i*ngape))) && (iad<= (istart+(i*ngape)+iwidth))) {
-          if(ich < 32) idata= iph; /* this is for time channels */
-          else idata = iph1; /* this is for charge channels */
-	  /* iph and iph1 are the argument */
-          printf(" ich = %d, ia= %d, idata = %d \n", ich, iad, idata);
-         }
-        }
-      }
-      else idata =0;
-      buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_load_data + (idata<<16) ;
+      if(ich== 0)  buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_load_ch + (64<<16); /* especially channel 0 should be set to some other value which is 64 here because 0 usually means invalid in Chi's FPGA code */ 
+      else buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_load_ch + (ich<<16) ;
       i= 1;
       k= 1;
       i = pcie_send_1(hDev, i, k, px);
       usleep(1);
-//      printf(" load testram ch = %d, address %d\n", ich, iad);
-//      scanf("%d", &i);
-     }
+      printf(" load testram ch = %d, module %d\n", ich, imod); // module = ADC slot number in the crate
+                                                               //     scanf("%d", &i);
+      for (iad =0; iad<512 ; iad++) {// 512: total number of clock cycle
+        if ( pattern[ich] !=0) {
+          idata=0;
+          for (i=0; i< nrepeat; i++) {
+            if((iad >= (istart+(i*ngape))) && (iad<= (istart+(i*ngape)+iwidth))) {
+              if(ich < 32) idata= iph; /* this is for time channels */
+              else idata = iph1; /* this is for charge channels */
+              /* iph and iph1 are the argument */
+              printf(" ich = %d, ia= %d, idata = %d \n", ich, iad, idata);
+            }
+          }
+        }
+        else idata =0;
+        buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_load_data + (idata<<16) ;
+        i= 1;
+        k= 1;
+        i = pcie_send_1(hDev, i, k, px);
+        usleep(1);
+        //      printf(" load testram ch = %d, address %d\n", ich, iad);
+        //      scanf("%d", &i);
+      }
     }
 
     buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_testram_trig_delay + (idelay<<16) ;
@@ -26138,92 +26018,93 @@ static int adc_testram_trig_load_mbd(WDC_DEVICE_HANDLE hDev, int imod, int idela
     k= 1;
     i = pcie_send_1(hDev, i, k, px);
     usleep(1);
-//
-//
-//
-//      loading the ADC correction table for channel 0-63
-//      /* ADC correction table is to correct for the correlation between the input analog signal to the digital ADC output 
-//      * e.g. the linearity or overall scaling or ... 
-//      * this correction is performed for each channel separately
-//      */
-//
+
+
+    /*******************************************
+     * adc_load_lookup_tables in Ran's code
+     * ****************************************/
+
+    //      loading the ADC correction table for channel 0-63
+    //      /* ADC correction table is to correct for the correlation between the input analog signal to the digital ADC output 
+    //      * e.g. the linearity or overall scaling or ... 
+    //      * this correction is performed for each channel separately
+    //      */
+    //
     for (ich=0 ; ich< 64; ich++) {/* each channel has 14 bit output but in the end only 10 bits are used */
-//#define  sp_adc_trig_tbl_chnl       2
-     ichip = sp_adc_trigproc_sub;
-     buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_tbl_chnl + (ich<<16) ; /* sp_adc_trig_tbl_chnl : table channel */
-     i= 1;
-     k= 1;
-     i = pcie_send_1(hDev, i, k, px);
-     usleep(10);
-     printf(" adc table loading channel %d \n", ich);
+      //#define  sp_adc_trig_tbl_chnl       2
+      ichip = sp_adc_trigproc_sub;
+      buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_tbl_chnl + (ich<<16) ; /* sp_adc_trig_tbl_chnl : table channel */
+      i= 1;
+      k= 1;
+      i = pcie_send_1(hDev, i, k, px);
+      usleep(10);
+      printf(" adc table loading channel %d \n", ich);
 
-     /* for this lookup table, input is 10 bits, output is also 10 bits */
-     for (i=0; i<1024; i++) { /* 10 bits = 1024 in decimal ( which is input size ) */
-//      l1_adc_table[i] = (i+ich) & 0x3ff;
-      l1_adc_table[i] = (i) & 0x3ff; /* 0x3ff = 2^10-1 in decimal = 1111111111 in binary (this is output size) */
-      /* for now, the table is giving just the same value -> no correction. */
-     }
-     step_size = 1024;
-//       for (is=0; is<5; is++) {
-//        ia = is*step_size;
-//        ib = (is+1)*step_size+1;
-     ia=0;
-     ib= 1025;
-     ichip = sp_adc_trigproc_sub;
-     buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_lkp_addr + (ia<<16) ; /*  sp_adc_trig_lkp_addr : lookup table address */
-     i= 1;
-     k= 1;
-     i = pcie_send_1(hDev, i, k, px);
-     usleep(10);
-//
-//
-     printf(" sending data packet ADC correction %d\n", ich);
-     if(ich == 1) scanf("%d", &i);
-     for (i=ia; i<ib; i++) {
-      if(i == ia) buf_send[0] = (imod <<11)+ (ichip << 8) + sp_adc_trig_lkp_data + (l1_adc_table[i] & 0x3ff) ; /* lookup table data sending */
-      else if (((i%2) == 0) &&(i !=ia)) {
-       j = (i-ia)/2;
-       buf_send[j] = (l1_adc_table[i-1] & 0x3ff) + ((l1_adc_table[i] & 0x3ff) <<16); /* flip the order of the 16 bits when you send the data to FPGA (data0 + command) + (data2+data1) + ... */
-       /* each data is 16 bits and it's packed as 32 bits */
-       
-//         printf(" %d %x\n", j, buf_send[j]);
+      /* for this lookup table, input is 10 bits, output is also 10 bits */
+      for (i=0; i<1024; i++) { /* 10 bits = 1024 in decimal ( which is input size ) */
+        //      l1_adc_table[i] = (i+ich) & 0x3ff;
+        l1_adc_table[i] = (i) & 0x3ff; /* 0x3ff = 2^10-1 in decimal = 1111111111 in binary (this is output size) */
+        /* for now, the table is giving just the same value -> no correction. */
       }
-     }
-     i=1;
-     k=(step_size/2)+1;
-     i = pcie_send_1(hDev, i, k, px);/* k is the number of words */
-     k=(step_size/10)+1;
-     usleep(k);
+      step_size = 1024;
+      //       for (is=0; is<5; is++) {
+      //        ia = is*step_size;
+      //        ib = (is+1)*step_size+1;
+      ia=0;
+      ib= 1025;
+      ichip = sp_adc_trigproc_sub;
+      buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_lkp_addr + (ia<<16) ; /*  sp_adc_trig_lkp_addr : lookup table address */
+      i= 1;
+      k= 1;
+      i = pcie_send_1(hDev, i, k, px);
+      usleep(10);
+      //
+      //
+      printf(" sending data packet ADC correction %d\n", ich);
+      if(ich == 1) scanf("%d", &i);
+      for (i=ia; i<ib; i++) {
+        if(i == ia) buf_send[0] = (imod <<11)+ (ichip << 8) + sp_adc_trig_lkp_data + (l1_adc_table[i] & 0x3ff) ; /* lookup table data sending */
+        else if (((i%2) == 0) &&(i !=ia)) {
+          j = (i-ia)/2;
+          buf_send[j] = (l1_adc_table[i-1] & 0x3ff) + ((l1_adc_table[i] & 0x3ff) <<16); /* flip the order of the 16 bits when you send the data to FPGA (data0 + command) + (data2+data1) + ... */
+          /* each data is 16 bits and it's packed as 32 bits */
+
+          //         printf(" %d %x\n", j, buf_send[j]);
+        }
+      }
+      i=1;
+      k=(step_size/2)+1;
+      i = pcie_send_1(hDev, i, k, px);/* k is the number of words */
+      k=(step_size/10)+1;
+      usleep(k);
     }
-//
-//
 
-//
-//      loading the adc correction table
-//
-///* second table which is l1_slewing_table , time slew correction */
-///* some electronic issue, search for the wiki page */
-      for (ich=0 ; ich< 32; ich++) {/* time channels are okay that is why the ich 0-31 */ 
-//#define  sp_adc_trig_tbl_chnl       2
-       ichip = sp_adc_trigproc_sub;
-       buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_tbl_chnl + (ich<<16) ;/* sp_adc_trig_tbl_chnl: set the channel */
-       i= 1;
-       k= 1;
-       i = pcie_send_1(hDev, i, k, px);
-       usleep(10);
-       printf(" slewing table loading channel %d \n", ich);
+    //
+    //      loading the adc correction table
+    //
+    ///* second table which is l1_slewing_table , time slew correction */
+    ///* some electronic issue, search for the wiki page */
+    for (ich=0 ; ich< 32; ich++) {/* time channels are okay that is why the ich 0-31 */ 
+      //#define  sp_adc_trig_tbl_chnl       2
+      ichip = sp_adc_trigproc_sub;
+      buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_tbl_chnl + (ich<<16) ;/* sp_adc_trig_tbl_chnl: set the channel */
+      i= 1;
+      k= 1;
+      i = pcie_send_1(hDev, i, k, px);
+      usleep(10);
+      printf(" slewing table loading channel %d \n", ich);
 
-       for (i=0; i<4096; i++) { /* input size 12 bits */
-	 /* for this lookup table we need time information too, even though correction is applied only to charges */
-	 /* so we take higher 3 bits of charge (out of 10 bits after LUT) + lower 9 bits of time (out of 10 bits after LUT), 
-	  * and then the input for this lookup table becomes to (3+9) = 12 bits */
+      for (i=0; i<4096; i++) { /* input size 12 bits */
+        /* for this lookup table we need time information too, even though correction is applied only to charges */
+        /* so we take higher 3 bits of charge (out of 10 bits after LUT) + lower 9 bits of time (out of 10 bits after LUT), 
+         * and then the input for this lookup table becomes to (3+9) = 12 bits */
 
-//        l1_slewing_table[i] = (i+ich) & 0x1ff;
-//
+        //        l1_slewing_table[i] = (i+ich) & 0x1ff;
+        //
         l1_slewing_table[i] = (i) & 0x1ff;/* output size 9 bits */
-       }
-       step_size = 1024;
-       for (is=0; is<5; is++) {// 4096/1024 = 4 -> so the number of iterations should be 4, not 5 
+      }
+      step_size = 1024;
+      for (is=0; is<5; is++) {// 4096/1024 = 4 -> so the number of iterations should be 4, not 5 
         ia = is*step_size;
         ib = (is+1)*step_size+1;
         ichip = sp_adc_trigproc_sub;
@@ -26232,44 +26113,36 @@ static int adc_testram_trig_load_mbd(WDC_DEVICE_HANDLE hDev, int imod, int idela
         k= 1;
         i = pcie_send_1(hDev, i, k, px);
         usleep(10);
-//
-//
+        //
+        //
         printf(" sending data packet %d\n", is);
-//        scanf("%d", &i);
+        //        scanf("%d", &i);
         for (i=ia; i<ib; i++) {
-         if(i == ia) buf_send[0] = (imod <<11)+ (ichip << 8) + sp_adc_trig_mbd_tbl_data + (l1_slewing_table[i] & 0x1ff) ;
-         else if (((i%2) == 0) &&(i !=ia)) {
-          j = (i-ia)/2;
-          buf_send[j] = (l1_slewing_table[i-1] & 0x1ff) + ((l1_slewing_table[i] & 0x1ff) <<16);
-//         printf(" %d %x\n", j, buf_send[j]);
-         }
+          if(i == ia) buf_send[0] = (imod <<11)+ (ichip << 8) + sp_adc_trig_mbd_tbl_data + (l1_slewing_table[i] & 0x1ff) ;
+          else if (((i%2) == 0) &&(i !=ia)) {
+            j = (i-ia)/2;
+            buf_send[j] = (l1_slewing_table[i-1] & 0x1ff) + ((l1_slewing_table[i] & 0x1ff) <<16);
+            //         printf(" %d %x\n", j, buf_send[j]);
+          }
         }
         i=1;
         k=(step_size/2)+1;
         i = pcie_send_1(hDev, i, k, px);
         k=(step_size/10)+1;
         usleep(k);
-       }
       }
+    }
 
-
-
-
-
-
-//
-///* some setting */
+    ///* some setting */
     ichip = sp_adc_trigproc_sub;
     buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_sub_delay + (trig_rw_delay<<16);  // set trigger subtract delay to 2
     i= 1;
     k= 1;
     i = pcie_send_1(hDev, i, k, px);
     usleep(1);
-//
-//
-//
-//
-//#define  sp_adc_trig_smpl_phase      5
+
+    //
+    //#define  sp_adc_trig_smpl_phase      5
     ichip = sp_adc_trigproc_sub;
     buf_send[0]=(imod <<11)+ (ichip << 8) + sp_adc_trig_smpl_phase + (0x6<<16);  // set trigger sample phase 5
     i= 1;
@@ -26282,7 +26155,7 @@ static int adc_testram_trig_load_mbd(WDC_DEVICE_HANDLE hDev, int imod, int idela
 
 
     return i;
-}
+    }
 
 
 

@@ -44,9 +44,10 @@ CFLAGS += -DWD_DRIVER_NAME_CHANGE
 LFLAGS += -lwdapi1480 -L$(PWD)/lib
 LFLAGS += -lpthread
 
+TARGET = bin/sphenix_adc_test_yj
 # TARGET = bin/sphenix_adc_test_jseb2
 # TARGET = bin/sphenix_adc_test_chi
-TARGET = bin/sphenix_adc_test_chi_temp
+# TARGET = bin/sphenix_adc_test_chi_temp
 
 LLIBS = src/jseb2_lib.c
 LOBJS = $(addsuffix .o, $(addprefix lib/, $(basename $(notdir $(LLIBS)))))
@@ -61,14 +62,15 @@ all: mkdir $(TARGET)
 mkdir:
 	@mkdir -p $(PWD)/bin $(PWD)/lib $(PWD)/lib/wd
 
-$(TARGET): src/sphenix_adc_test_chi_temp.c $(OBJS)
+# $(TARGET): src/sphenix_adc_test_chi_temp.c $(OBJS)
 # $(TARGET): src/sphenix_adc_test_chi.c $(OBJS)
 # $(TARGET): src/sphenix_adc_test_jseb2.c $(OBJS)
+$(TARGET): src/sphenix_adc_test_yj.c $(OBJS)
 	$(CC) -std=c99 $(CFLAGS) -o $@ $< $(OBJS) $(LFLAGS)
 
 lib/%.o: src/%.c
 	$(CC) -std=c99 -c $(CFLAGS) -o $@ $<
-
+	
 lib/wd/%.o: $(WD_BASEDIR)/%.c
 	$(CC) -std=c99 -c $(CFLAGS) -o $@ $<
 

@@ -1081,7 +1081,9 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
     int blksize;
     unsigned int sleeptime_DAN;
     unsigned int sleeptimeBig_DAN;
-
+    time_t time_one, time_two;
+    double kept_time;
+    
     unsigned char    charchannel;
     unsigned char    carray[40000];
     struct timespec tim, tim2;
@@ -1142,12 +1144,39 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
     printf("     (30) sphenix ADC test with rev1 fpga code and DCM test code\n");
     printf("     (31) Sphenix XMIT reprogram code \n");
     printf("     (32) MBD trigger module test code \n");
-
+    printf("     (33) Computer Timing test \n");
     scanf("%d",&newcmd);
     switch(newcmd) {
 
 
-    case 1:
+    case 34:
+      printf(" This is the Sleep Test. \n");
+      sleeptime_DAN = 10;
+      
+      count = 0;
+      counta = 0;
+      ia = 0;
+      
+      printf("starting the run \n");;
+      
+      printf("Sleeptime %d : \n", sleeptime_DAN);
+      
+      for (count = 0; count < 10; count++){
+	time_one = time(NULL);
+	kept_time = 0	;
+	counta = 0;
+	while (kept_time < 1){
+		usleep(sleeptime_DAN);
+		time_two = time(NULL);
+		kept_time = difftime(time_two, time_one);
+		counta++;
+	}
+	printf("%d \n", counta);
+      }
+      printf("Done ... \n");
+     
+
+     case 1:
      printf(" number of loop \n");
      scanf("%d",&nloop);
      printf(" number per event \n");
@@ -4050,15 +4079,8 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
           for (k=0; k< 32; k++) {
 //        adc_data[(k*2)][is] = read_array[(is*32)+k+2] & 0xffff;
 //        adc_data[((k*2)+1)][is] = (read_array[(is*32)+k+2] >>16) & 0xffff;
-           /* adc_data[(k*2)][is] = read_array[(k*nsample)+is+2] & 0xffff; */
-           /* adc_data[((k*2)+1)][is] = (read_array[(k*nsample)+is+2] >>16) & 0xffff; */
-		/* yeonju test 2022 Jul 13 */ 
-           adc_data[k*2][is*2] = read_array[(k*nsample)+is+2] & 0xffff;
-           adc_data[k*2][is*2+1] = (read_array[(k*nsample)+is+2] >>16) & 0xffff;
-           adc_data[(k*2)+1][is*2] = read_array[(k*nsample)+(nsample/2)+is+2] & 0xffff;
-           adc_data[(k*2)+1][is*2+1] = (read_array[(k*nsample)+(nsample/2)+is+2] >>16) & 0xffff;
-           /* adc_data[(k*2)][is] = read_array[(k*nsample)+is+2] & 0xffff; */
-           //adc_data[(k*2)][is+1] = (read_array[(k*nsample)+is+2] >>16) & 0xffff;
+           adc_data[(k*2)][is] = read_array[(k*nsample)+is+2] & 0xffff;
+           adc_data[((k*2)+1)][is] = (read_array[(k*nsample)+is+2] >>16) & 0xffff;
           }
          }
 
@@ -5264,9 +5286,8 @@ static void MenuADCtest(WDC_DEVICE_HANDLE hDev, WDC_DEVICE_HANDLE hDev1, WDC_DEV
        printf(" reset done type 1 to continue \n");
        scanf("%d", &ik);
        is=0;
-       //inpf = fopen("/home/cherry/Downloads/mbd_double_blink.rpd","r");
+       inpf = fopen("/home/cherry/Downloads/mbd_double_blink.rpd","r");
        //inpf = fopen("/home/grape/Downloads/mbd_double_blink.rpd","r");
-       inpf = fopen("/home/cherry/Downloads/czl_daq64_single.rpd","r");
        count = 0;// total size of data
        counta =0;// the block size
        addr_w =0;
@@ -22627,8 +22648,6 @@ int   is1,is2, index1, is2_ch, is2_smpl;
 
 
     }
-
-
 
 }
 
